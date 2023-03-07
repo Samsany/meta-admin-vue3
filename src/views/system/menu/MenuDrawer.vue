@@ -11,7 +11,7 @@
   </BasicDrawer>
 </template>
 <script lang="ts" setup name="MenuDrawer">
-  import { ref, computed, unref, watch } from 'vue';
+  import { computed, ref, unref } from 'vue';
   import { BasicForm, useForm } from '/@/components/Form/index';
   import { formSchema } from './menu.data';
   import { BasicDrawer, useDrawerInner } from '/@/components/Drawer';
