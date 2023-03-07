@@ -1,4 +1,6 @@
 export default {
   login: 'Login',
-  errorLogList: 'Error Log',
-};
+  oauth2Login: 'Oauth2Login',
+  socialLogin: 'SocialLogin',
+  errorLogList: 'Error Log'
+}

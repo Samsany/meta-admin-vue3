@@ -1,45 +1,66 @@
-import { defHttp } from '/@/utils/http/axios';
-import { LoginParams, LoginResultModel, GetUserInfoModel } from './model/userModel';
+import { defHttp } from '/@/utils/http/axios'
+import { GetUserInfoModel } from './model/userModel'
 
-import { ErrorMessageMode } from '/#/axios';
+import { ErrorMessageMode } from '/#/axios'
+import { useMessage } from '/@/hooks/web/useMessage'
 
+const { createErrorModal } = useMessage()
 enum Api {
-  Login = '/meta-uaa/oauth/token',
-  GetUserInfo = '/meta-uaa/auth/user/info',
-  Logout = '/meta-uaa/auth/logout',
+  GetUserInfo = '/meta-auth/auth/user/info',
+  Logout = '/meta-auth/auth/logout',
   TestRetry = '/testRetry',
-  getAllRoleList = '',
-  isAccountExist = '',
+  IsAccountExist = '',
+  GetPermCode = '/sys/permission/getPermCode',
+  //校验用户接口
+  checkOnlyUser = '/sys/user/checkOnlyUser',
+  //校验手机号
+  phoneVerify = '/sys/user/phoneVerification',
+  //修改密码
+  passwordChange = '/sys/user/passwordChange',
+  //获取短信验证码的接口
+  getSmsCaptcha = '/meta-auth/oauth/captcha/sms',
+  //第三方登录验证码的接口
+  getThirdCaptcha = '/sys/thirdSms'
 }
 
 /**
- * @description: user login api
- */
-export function loginApi(params: LoginParams, mode: ErrorMessageMode = 'modal') {
-  return defHttp.post<LoginResultModel>(
-    {
-      url: Api.Login,
-      params,
-      auth: {
-        username: 'meta-admin-client',
-        password: 'secret',
-      },
-    },
-    {
-      errorMessageMode: mode,
-    },
-  );
-}
-
-/**
+ * 用户详情
+ *
  * @description: getUserInfo
  */
 export function getUserInfo(mode: ErrorMessageMode = 'message') {
-  return defHttp.get<GetUserInfoModel>({ url: Api.GetUserInfo }, { errorMessageMode: mode });
+  return defHttp.get<GetUserInfoModel>({ url: Api.GetUserInfo }, { errorMessageMode: mode })
 }
 
+/**
+ * @description: 退出登录
+ */
 export function doLogout() {
-  return defHttp.get({ url: Api.Logout });
+  return defHttp.get({ url: Api.Logout })
+}
+
+/**
+ * @description: 获取短信验证码
+ */
+export function getSmsCaptcha(params) {
+  return defHttp.post({ url: Api.getSmsCaptcha, params })
+}
+
+/**
+ * @description: 获取第三方短信验证码
+ */
+export function setThirdCaptcha(params) {
+  return new Promise((resolve, reject) => {
+    defHttp.post({ url: Api.getThirdCaptcha, params }, { isTransformResponse: false }).then(res => {
+      console.log(res)
+      if (res.success) {
+        resolve(true)
+      } else {
+        createErrorModal({ title: '错误提示', content: res.message || '未知问题' })
+        reject()
+      }
+    })
+  })
 }
 
 export function testRetry() {
@@ -49,8 +70,8 @@ export function testRetry() {
       retryRequest: {
         isOpenRetry: true,
         count: 5,
-        waitTime: 1000,
-      },
-    },
-  );
+        waitTime: 1000
+      }
+    }
+  )
 }

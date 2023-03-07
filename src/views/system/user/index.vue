@@ -1,6 +1,6 @@
 <template>
   <PageWrapper dense contentFullHeight fixedHeight contentClass="flex">
-    <DeptTree class="w-1/4 xl:w-1/5" @select="handleSelect" />
+    <DeptTree class="w-1/4 xl:w-1/5" @select="handleSelectDept" />
     <BasicTable @register="registerTable" class="w-3/4 xl:w-4/5" :searchInfo="searchInfo">
       <template #toolbar>
         <a-button type="primary" @click="handleCreate">新增账号</a-button>
@@ -12,12 +12,12 @@
               {
                 icon: 'clarity:info-standard-line',
                 tooltip: '查看用户详情',
-                onClick: handleView.bind(null, record),
+                onClick: handleView.bind(null, record)
               },
               {
                 icon: 'clarity:note-edit-line',
                 tooltip: '编辑用户资料',
-                onClick: handleEdit.bind(null, record),
+                onClick: handleEdit.bind(null, record)
               },
               {
                 icon: 'ant-design:delete-outlined',
@@ -26,9 +26,9 @@
                 popConfirm: {
                   title: '是否确认删除',
                   placement: 'left',
-                  confirm: handleDelete.bind(null, record),
-                },
-              },
+                  confirm: handleDelete.bind(null, record)
+                }
+              }
             ]"
           />
         </template>
@@ -37,101 +37,114 @@
     <AccountModal @register="registerModal" @success="handleSuccess" />
   </PageWrapper>
 </template>
-<script lang="ts">
-  import { defineComponent, reactive } from 'vue';
 
-  import { BasicTable, useTable, TableAction } from '/@/components/Table';
-  import { getAccountList } from '/@/api/system/user';
-  import { PageWrapper } from '/@/components/Page';
-  import DeptTree from './DeptTree.vue';
+<script lang="ts" setup name="AccountManagement">
+import { reactive } from 'vue'
 
-  import { useModal } from '/@/components/Modal';
-  import AccountModal from './AccountModal.vue';
+import { BasicTable, TableAction, useTable } from '/@/components/Table'
+import { getAccountList } from '/@/api/system/account'
+import { PageWrapper } from '/@/components/Page'
+import DeptTree from './DeptTree.vue'
 
-  import { columns, searchFormSchema } from './account.data';
-  import { useGo } from '/@/hooks/web/usePage';
+import { useModal } from '/@/components/Modal'
+import AccountModal from './AccountModal.vue'
 
-  export default defineComponent({
-    name: 'AccountManagement',
-    components: { BasicTable, PageWrapper, DeptTree, AccountModal, TableAction },
-    setup() {
-      const go = useGo();
-      const [registerModal, { openModal }] = useModal();
-      const searchInfo = reactive<Recordable>({});
-      const [registerTable, { reload, updateTableDataRecord }] = useTable({
-        title: '账号列表',
-        api: getAccountList,
-        rowKey: 'id',
-        columns,
-        formConfig: {
-          labelWidth: 120,
-          schemas: searchFormSchema,
-          autoSubmitOnEnter: true,
-        },
-        useSearchForm: true,
-        showTableSetting: true,
-        bordered: true,
-        handleSearchInfoFn(info) {
-          console.log('handleSearchInfoFn', info);
-          return info;
-        },
-        actionColumn: {
-          width: 120,
-          title: '操作',
-          dataIndex: 'action',
-          // slots: { customRender: 'action' },
-        },
-      });
+import { columns, searchFormSchema } from './account.data'
+import { useGo } from '/@/hooks/web/usePage'
 
-      function handleCreate() {
-        openModal(true, {
-          isUpdate: false,
-        });
-      }
+const go = useGo()
+const [registerModal, { openModal }] = useModal()
+const searchInfo = reactive<Recordable>({})
+const [registerTable, { reload, updateTableDataRecord }] = useTable({
+  title: '账号列表',
+  api: getAccountList,
+  fetchSetting: {
+    pageField: 'pageNum',
+    sizeField: 'pageSize',
+    listField: 'list',
+    totalField: 'totalCount'
+  },
+  rowKey: 'id',
+  columns,
+  formConfig: {
+    labelWidth: 120,
+    schemas: searchFormSchema,
+    autoSubmitOnEnter: true
+  },
+  useSearchForm: true,
+  showTableSetting: true,
+  striped: false,
+  bordered: false,
+  beforeFetch(info) {
+    console.log('请求前', info)
 
-      function handleEdit(record: Recordable) {
-        console.log(record);
-        openModal(true, {
-          record,
-          isUpdate: true,
-        });
-      }
+    return info
+  },
+  handleSearchInfoFn(info) {
+    console.log('handleSearchInfoFn', info)
+    return info
+  },
+  actionColumn: {
+    width: 120,
+    title: '操作',
+    dataIndex: 'action'
+    // slots: { customRender: 'action' },
+  }
+})
 
-      function handleDelete(record: Recordable) {
-        console.log(record);
-      }
+function handleCreate() {
+  openModal(true, {
+    isUpdate: false
+  })
+}
 
-      function handleSuccess({ isUpdate, values }) {
-        if (isUpdate) {
-          // 演示不刷新表格直接更新内部数据。
-          // 注意：updateTableDataRecord要求表格的rowKey属性为string并且存在于每一行的record的keys中
-          const result = updateTableDataRecord(values.id, values);
-          console.log(result);
-        } else {
-          reload();
-        }
-      }
+function handleEdit(record: Recordable) {
+  console.log(record)
+  openModal(true, {
+    record,
+    isUpdate: true
+  })
+}
 
-      function handleSelect(deptId = '') {
-        searchInfo.deptId = deptId;
-        reload();
-      }
+function handleDelete(record: Recordable) {
+  console.log(record)
+}
 
-      function handleView(record: Recordable) {
-        go('/system/account_detail/' + record.id);
-      }
+function handleSuccess({ isUpdate, values }) {
+  if (isUpdate) {
+    // 演示不刷新表格直接更新内部数据。
+    // 注意：updateTableDataRecord要求表格的rowKey属性为string并且存在于每一行的record的keys中
+    const result = updateTableDataRecord(values.id, values)
+    console.log(result)
+  } else {
+    reload()
+  }
+}
 
-      return {
-        registerTable,
-        registerModal,
-        handleCreate,
-        handleEdit,
-        handleDelete,
-        handleSuccess,
-        handleSelect,
-        handleView,
-        searchInfo,
-      };
-    },
-  });
+function handleSelectDept(deptId = '') {
+  searchInfo.deptId = deptId
+  reload()
+}
+
+function handleView(record: Recordable) {
+  go('/system/account_detail/' + record.id)
+}
+
+// export default defineComponent({
+//   name: 'AccountManagement',
+//   components: { BasicTable, PageWrapper, DeptTree, AccountModal, TableAction },
+//   setup() {
+//     return {
+//       registerTable,
+//       registerModal,
+//       handleCreate,
+//       handleEdit,
+//       handleDelete,
+//       handleSuccess,
+//       handleSelectDept,
+//       handleView,
+//       searchInfo,
+//     }
+//   },
+// })
 </script>

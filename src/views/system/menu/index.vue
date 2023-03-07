@@ -12,7 +12,7 @@
             :actions="[
               {
                 icon: 'clarity:note-edit-line',
-                onClick: handleEdit.bind(null, record),
+                onClick: handleEdit.bind(null, record)
               },
               {
                 icon: 'ant-design:delete-outlined',
@@ -20,9 +20,9 @@
                 popConfirm: {
                   title: '是否确认删除',
                   placement: 'left',
-                  confirm: handleDelete.bind(null, record),
-                },
-              },
+                  confirm: handleDelete.bind(null, record)
+                }
+              }
             ]"
           />
         </template>
@@ -32,69 +32,69 @@
   </div>
 </template>
 <script setup lang="ts" name="MenuManagement">
-  import { nextTick, reactive } from 'vue';
+import { nextTick, reactive } from 'vue'
 
-  import { BasicTable, useTable, TableAction } from '/@/components/Table';
-  import { getTreeMenuList, getMenuInfo } from '/@/api/system/menu';
+import { BasicTable, useTable, TableAction } from '/@/components/Table'
+import { getTreeMenuList, getMenuInfo } from '/@/api/system/menu'
 
-  import { useDrawer } from '/@/components/Drawer';
-  import MenuDrawer from './MenuDrawer.vue';
+import { useDrawer } from '/@/components/Drawer'
+import MenuDrawer from './MenuDrawer.vue'
 
-  import { columns, searchFormSchema } from './menu.data';
+import { columns, searchFormSchema } from './menu.data'
 
-  const [registerDrawer, { openDrawer }] = useDrawer();
-  const [registerTable, { reload, expandAll, collapseAll }] = useTable({
-    title: '菜单列表',
-    api: getTreeMenuList,
-    columns,
-    formConfig: {
-      labelWidth: 120,
-      schemas: searchFormSchema,
-    },
-    isTreeTable: true,
-    pagination: false,
-    striped: false,
-    useSearchForm: true,
-    showTableSetting: true,
-    bordered: true,
-    showIndexColumn: false,
-    canResize: false,
-    actionColumn: {
-      width: 80,
-      title: '操作',
-      dataIndex: 'action',
-      // slots: { customRender: 'action' },
-      fixed: undefined,
-    },
-  });
-
-  function handleCreate() {
-    openDrawer(true, {
-      isUpdate: false,
-    });
+const [registerDrawer, { openDrawer }] = useDrawer()
+const [registerTable, { reload, expandAll, collapseAll }] = useTable({
+  title: '菜单列表',
+  api: getTreeMenuList,
+  columns,
+  formConfig: {
+    labelWidth: 120,
+    schemas: searchFormSchema
+  },
+  isTreeTable: true,
+  pagination: false,
+  striped: false,
+  useSearchForm: true,
+  showTableSetting: true,
+  bordered: true,
+  showIndexColumn: false,
+  canResize: false,
+  actionColumn: {
+    width: 80,
+    title: '操作',
+    dataIndex: 'action',
+    // slots: { customRender: 'action' },
+    fixed: undefined
   }
+})
 
-  async function handleEdit(row: Recordable) {
-    // 获取菜单详情
-    const record = reactive(await getMenuInfo({ id: row.id }));
-    console.log(record);
+function handleCreate() {
+  openDrawer(true, {
+    isUpdate: false
+  })
+}
 
-    openDrawer(true, {
-      record,
-      isUpdate: true,
-    });
-  }
+async function handleEdit(row: Recordable) {
+  // 获取菜单详情
+  const record = reactive(await getMenuInfo({ id: row.id }))
+  // console.log(record)
 
-  function handleDelete(record: Recordable) {
-    console.log(record);
-  }
+  openDrawer(true, {
+    record,
+    isUpdate: true
+  })
+}
 
-  function handleSuccess() {
-    reload();
-  }
+function handleDelete(record: Recordable) {
+  console.log(record)
+}
 
-  function onFetchSuccess() {
-    // 演示默认展开所有表项
-    nextTick(expandAll);
-  }
+function handleSuccess() {
+  reload()
+}
+
+function onFetchSuccess() {
+  // 演示默认展开所有表项
+  nextTick(expandAll)
+}
 </script>

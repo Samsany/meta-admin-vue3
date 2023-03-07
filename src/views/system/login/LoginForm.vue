@@ -8,6 +8,9 @@
     v-show="getShow"
     @keypress.enter="handleLogin"
   >
+    <FormItem name="key">
+      <Input size="large" v-model:value="formData.key" :hidden="true" />
+    </FormItem>
     <FormItem name="account" class="enter-x">
       <Input
         size="large"
@@ -24,6 +27,24 @@
         :placeholder="t('sys.login.password')"
       />
     </FormItem>
+    <!-- 验证码 -->
+    <ARow class="enter-x">
+      <ACol :span="16">
+        <FormItem name="code" class="enter-x">
+          <Input
+            size="large"
+            v-model:value="formData.code"
+            :placeholder="t('sys.login.captcha')"
+            style="min-width: 180px"
+          />
+        </FormItem>
+      </ACol>
+      <ACol :span="8">
+        <FormItem :style="{ 'text-align': 'right', 'margin-left': '5px' }" class="enter-x">
+          <img :src="codeUrl" @click="getCode" />
+        </FormItem>
+      </ACol>
+    </ARow>
 
     <ARow class="enter-x">
       <ACol :span="12">
@@ -70,91 +91,110 @@
       </ACol>
     </ARow> -->
 
-    <!-- <Divider class="enter-x">{{ t('sys.login.otherSignIn') }}</Divider>
+    <!--    <Divider class="enter-x">{{ t('sys.login.otherSignIn') }}</Divider>-->
 
-    <div class="flex justify-evenly enter-x" :class="`${prefixCls}-sign-in-way`">
-      <GithubFilled />
-      <WechatFilled />
-      <AlipayCircleFilled />
-      <GoogleCircleFilled />
-      <TwitterCircleFilled />
-    </div> -->
+    <!--    <div class="flex justify-evenly enter-x" :class="`${prefixCls}-sign-in-way`">-->
+    <!--      <a @click="onThirdLogin('douyin')" title="抖音"><svg-icon name="douyin" size="22" /></a>-->
+    <!--      <a @click="onThirdLogin('github')" title="github"><GithubFilled /></a>-->
+    <!--      <WechatFilled />-->
+    <!--      <AlipayCircleFilled />-->
+    <!--      <GoogleCircleFilled />-->
+    <!--      <TwitterCircleFilled />-->
+    <!--    </div>-->
+    <!-- 第三方登录相关弹框 -->
+    <ThirdModal ref="thirdModalRef" />
   </Form>
 </template>
 <script lang="ts" setup>
-  import { reactive, ref, unref, computed } from 'vue';
+import { computed, onMounted, reactive, ref, unref } from 'vue'
 
-  import { Checkbox, Form, Input, Row, Col, Button } from 'ant-design-vue';
-  // import {
-  //   GithubFilled,
-  //   WechatFilled,
-  //   AlipayCircleFilled,
-  //   GoogleCircleFilled,
-  //   TwitterCircleFilled,
-  // } from '@ant-design/icons-vue';
-  import LoginFormTitle from './LoginFormTitle.vue';
+import { Button, Checkbox, Col, Form, Input, Row } from 'ant-design-vue'
+import LoginFormTitle from './LoginFormTitle.vue'
 
-  import { useI18n } from '/@/hooks/web/useI18n';
-  import { useMessage } from '/@/hooks/web/useMessage';
+import { useI18n } from '/@/hooks/web/useI18n'
+import { useMessage } from '/@/hooks/web/useMessage'
 
-  import { useUserStore } from '/@/store/modules/user';
-  import { LoginStateEnum, useLoginState, useFormRules, useFormValid } from './useLogin';
-  import { useDesign } from '/@/hooks/web/useDesign';
-  //import { onKeyStroke } from '@vueuse/core';
+import { useUserStore } from '/@/store/modules/user'
+import { LoginStateEnum, useFormRules, useFormValid, useLoginState } from './useLogin'
+import { useDesign } from '/@/hooks/web/useDesign'
+import ThirdModal from './ThirdModal.vue'
+import { getImageCaptcha } from '/@/api/system/login'
+//import { onKeyStroke } from '@vueuse/core';
 
-  const ACol = Col;
-  const ARow = Row;
-  const FormItem = Form.Item;
-  const InputPassword = Input.Password;
-  const { t } = useI18n();
-  const { notification, createErrorModal } = useMessage();
-  const { prefixCls } = useDesign('login');
-  const userStore = useUserStore();
+const ACol = Col
+const ARow = Row
+const FormItem = Form.Item
+const InputPassword = Input.Password
+const { t } = useI18n()
+const { notification, createErrorModal } = useMessage()
+const { prefixCls } = useDesign('login')
+const userStore = useUserStore()
 
-  const { setLoginState, getLoginState } = useLoginState();
-  const { getFormRules } = useFormRules();
+const { setLoginState, getLoginState } = useLoginState()
+const { getFormRules } = useFormRules()
 
-  const formRef = ref();
-  const loading = ref(false);
-  const rememberMe = ref(false);
+const formRef = ref()
+const thirdModalRef = ref()
+const loading = ref(false)
+const rememberMe = ref(false)
+const codeUrl = ref(false)
 
-  const formData = reactive({
-    account: 'admin',
-    password: '123456',
-  });
+const formData = reactive({
+  account: 'admin',
+  password: '123456',
+  key: '',
+  code: ''
+})
 
-  const { validForm } = useFormValid(formRef);
+const { validForm } = useFormValid(formRef)
 
-  //onKeyStroke('Enter', handleLogin);
+onMounted(() => {
+  getCode()
+})
 
-  const getShow = computed(() => unref(getLoginState) === LoginStateEnum.LOGIN);
+//onKeyStroke('Enter', handleLogin);
 
-  async function handleLogin() {
-    const data = await validForm();
-    if (!data) return;
-    try {
-      loading.value = true;
-      const userInfo = await userStore.login({
-        password: data.password,
-        username: data.account,
-        grant_type: 'password',
-        mode: 'none', //不要默认的错误提示
-      });
-      if (userInfo) {
-        notification.success({
-          message: t('sys.login.loginSuccessTitle'),
-          description: `${t('sys.login.loginSuccessDesc')}: ${userInfo.realName}`,
-          duration: 3,
-        });
-      }
-    } catch (error) {
-      createErrorModal({
-        title: t('sys.api.errorTip'),
-        content: (error as unknown as Error).message || t('sys.api.networkExceptionMsg'),
-        getContainer: () => document.body.querySelector(`.${prefixCls}`) || document.body,
-      });
-    } finally {
-      loading.value = false;
+const getShow = computed(() => unref(getLoginState) === LoginStateEnum.LOGIN)
+
+async function getCode() {
+  const codeModel = await getImageCaptcha()
+  codeUrl.value = codeModel.content
+  formData.key = codeModel.uuid
+}
+
+async function handleLogin() {
+  const data = await validForm()
+  console.log('=====', data)
+  if (!data) return
+  try {
+    loading.value = true
+    const userInfo = await userStore.login({
+      password: data.password,
+      username: data.account,
+      grant_type: 'captcha',
+      key: data.key,
+      code: data.code,
+      mode: 'none' //不要默认的错误提示
+    })
+    if (userInfo) {
+      notification.success({
+        message: t('sys.login.loginSuccessTitle'),
+        description: `${t('sys.login.loginSuccessDesc')}: ${userInfo.realName}`,
+        duration: 3
+      })
     }
+  } catch (error) {
+    createErrorModal({
+      title: t('sys.api.errorTip'),
+      content: (error as unknown as Error).message || t('sys.api.networkExceptionMsg'),
+      getContainer: () => document.body.querySelector(`.${prefixCls}`) || document.body
+    })
+  } finally {
+    loading.value = false
   }
+}
+
+// function onThirdLogin(type) {
+//   thirdModalRef.value.onThirdLogin(type)
+// }
 </script>
