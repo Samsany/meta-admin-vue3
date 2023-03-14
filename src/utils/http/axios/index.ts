@@ -64,7 +64,7 @@ const transform: AxiosTransform = {
       if (options.successMessageMode === 'modal') {
         createSuccessModal({ title: t('sys.api.successTip'), content: successMsg })
       } else if (options.successMessageMode === 'message') {
-        createMessage.success(successMsg).then()
+        createMessage.success(successMsg)
       }
       return data
     }
@@ -77,13 +77,13 @@ const transform: AxiosTransform = {
         errorMsg = t('sys.api.timeoutMessage')
         const userStore = useUserStoreWithOut()
         userStore.setToken(undefined)
-        userStore.logout(true).then()
+        userStore.logout(true)
         break
       case ResultEnum.UNAUTHORIZED:
         errorMsg = t(message)
         const userStore1 = useUserStoreWithOut()
         userStore1.setToken(undefined)
-        userStore1.logout(true).then()
+        userStore1.logout(true)
         break
       default:
         if (message) {
@@ -96,7 +96,7 @@ const transform: AxiosTransform = {
     if (options.errorMessageMode === 'modal') {
       createErrorModal({ title: t('sys.api.errorTip'), content: errorMsg })
     } else if (options.errorMessageMode === 'message') {
-      createMessage.error(errorMsg).then()
+      createMessage.error(errorMsg)
     }
 
     throw new Error(errorMsg || t('sys.api.apiRequestFailed'))

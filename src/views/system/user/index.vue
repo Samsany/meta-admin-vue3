@@ -1,6 +1,6 @@
 <template>
-  <PageWrapper dense contentFullHeight fixedHeight contentClass="flex">
-    <DeptTree class="w-1/4 xl:w-1/5" @select="handleSelectDept" />
+  <PageWrapper dense contentFullHeight contentClass="flex">
+    <DeptTree class="w-1/4 xl:w-1/5" @select="handleSelectDept" @register="registerDeptTree" />
     <BasicTable @register="registerTable" class="w-3/4 xl:w-4/5" :searchInfo="searchInfo">
       <template #toolbar>
         <a-button type="primary" @click="handleCreate">新增账号</a-button>
@@ -10,6 +10,12 @@
           <TableAction
             :actions="[
               {
+                icon: 'clarity:lock-line',
+                tooltip: '修改密码',
+                onClick: handleSetPassword.bind(null, record),
+                auth: 'sys:user:edit'
+              },
+              {
                 icon: 'clarity:info-standard-line',
                 tooltip: '查看用户详情',
                 onClick: handleView.bind(null, record)
@@ -17,7 +23,8 @@
               {
                 icon: 'clarity:note-edit-line',
                 tooltip: '编辑用户资料',
-                onClick: handleEdit.bind(null, record)
+                onClick: handleEdit.bind(null, record),
+                auth: 'sys:user:edit'
               },
               {
                 icon: 'ant-design:delete-outlined',
@@ -35,29 +42,38 @@
       </template>
     </BasicTable>
     <AccountModal @register="registerModal" @success="handleSuccess" />
+    <PasswordModal @register="registerPasswordModal" @success="handlePasswordSuccess" />
   </PageWrapper>
 </template>
 
 <script lang="ts" setup name="AccountManagement">
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 
 import { BasicTable, TableAction, useTable } from '/@/components/Table'
-import { getAccountList } from '/@/api/system/account'
 import { PageWrapper } from '/@/components/Page'
 import DeptTree from './DeptTree.vue'
 
 import { useModal } from '/@/components/Modal'
 import AccountModal from './AccountModal.vue'
+import PasswordModal from './PasswordModal.vue'
 
 import { columns, searchFormSchema } from './account.data'
 import { useGo } from '/@/hooks/web/usePage'
+import { useMessage } from '/@/hooks/web/useMessage'
+import { delSysUser, getSysUserInfo, getSysUserList } from '/@/api/system/account'
+import { TreeItem } from '/@/components/Tree'
 
 const go = useGo()
+const { createMessage } = useMessage()
+
+const deptTreeData = ref<TreeItem[]>([])
+
 const [registerModal, { openModal }] = useModal()
+const [registerPasswordModal, { openModal: openPasswordModal }] = useModal()
 const searchInfo = reactive<Recordable>({})
-const [registerTable, { reload, updateTableDataRecord }] = useTable({
+const [registerTable, { reload }] = useTable({
   title: '账号列表',
-  api: getAccountList,
+  api: getSysUserList,
   fetchSetting: {
     pageField: 'pageNum',
     sizeField: 'pageSize',
@@ -76,8 +92,7 @@ const [registerTable, { reload, updateTableDataRecord }] = useTable({
   striped: false,
   bordered: false,
   beforeFetch(info) {
-    console.log('请求前', info)
-
+    // console.log('请求前', info)
     return info
   },
   handleSearchInfoFn(info) {
@@ -85,7 +100,7 @@ const [registerTable, { reload, updateTableDataRecord }] = useTable({
     return info
   },
   actionColumn: {
-    width: 120,
+    width: 200,
     title: '操作',
     dataIndex: 'action'
     // slots: { customRender: 'action' },
@@ -94,31 +109,53 @@ const [registerTable, { reload, updateTableDataRecord }] = useTable({
 
 function handleCreate() {
   openModal(true, {
+    deptId: searchInfo.deptId,
+    deptTreeData,
     isUpdate: false
   })
 }
 
-function handleEdit(record: Recordable) {
+async function handleEdit(row: Recordable) {
+  const record = await getSysUserInfo({ id: row.id })
   console.log(record)
   openModal(true, {
+    record,
+    deptTreeData,
+    isUpdate: true
+  })
+}
+
+function handleSetPassword(record: Recordable) {
+  openPasswordModal(true, {
     record,
     isUpdate: true
   })
 }
 
-function handleDelete(record: Recordable) {
-  console.log(record)
+async function handleDelete(record: Recordable) {
+  // console.log(record)
+  await delSysUser([record.id])
+  createMessage.success()
+  handleSuccess({})
 }
 
-function handleSuccess({ isUpdate, values }) {
+function handleSuccess({ isUpdate = false, _values = {} }) {
   if (isUpdate) {
-    // 演示不刷新表格直接更新内部数据。
     // 注意：updateTableDataRecord要求表格的rowKey属性为string并且存在于每一行的record的keys中
-    const result = updateTableDataRecord(values.id, values)
-    console.log(result)
+    // const result = updateTableDataRecord(values.id, values)
+    // console.log()
   } else {
     reload()
   }
+}
+
+function registerDeptTree(data) {
+  // console.log(data)
+  deptTreeData.value = data
+}
+
+function handlePasswordSuccess() {
+  reload()
 }
 
 function handleSelectDept(deptId = '') {
@@ -129,22 +166,4 @@ function handleSelectDept(deptId = '') {
 function handleView(record: Recordable) {
   go('/system/account_detail/' + record.id)
 }
-
-// export default defineComponent({
-//   name: 'AccountManagement',
-//   components: { BasicTable, PageWrapper, DeptTree, AccountModal, TableAction },
-//   setup() {
-//     return {
-//       registerTable,
-//       registerModal,
-//       handleCreate,
-//       handleEdit,
-//       handleDelete,
-//       handleSuccess,
-//       handleSelectDept,
-//       handleView,
-//       searchInfo,
-//     }
-//   },
-// })
 </script>

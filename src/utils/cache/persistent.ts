@@ -11,6 +11,7 @@ import {
   LOCK_INFO_KEY,
   LOGIN_INFO_KEY,
   MULTIPLE_TABS_KEY,
+  PERMS_KEY,
   PROJ_CFG_KEY,
   ROLES_KEY,
   TOKEN_KEY,
@@ -24,6 +25,7 @@ interface BasicStore {
   [TOKEN_KEY]: string | number | null | undefined
   [USER_INFO_KEY]: UserInfo
   [ROLES_KEY]: string[]
+  [PERMS_KEY]: string[]
   [DB_DICT_DATA_KEY]: []
   [LOCK_INFO_KEY]: LockInfo
   [PROJ_CFG_KEY]: ProjectConfig

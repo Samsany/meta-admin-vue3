@@ -39,60 +39,6 @@ const render = {
     }
   },
   /**
-   * 根据字典编码 渲染
-   * @param v 值
-   * @param code 字典编码
-   * @param renderTag 是否使用tag渲染
-   */
-  renderDict: (v, code, renderTag = false) => {
-    let text = ''
-    const array = getDictItemsByCode(code) || []
-    const obj = array.filter(item => {
-      return item.dictValue == v
-    })
-    if (obj.length > 0) {
-      text = obj[0].dictLabel
-    }
-    return isEmpty(text) || !renderTag ? h('span', text) : h(Tag, text)
-  },
-  /**
-   * 根据字典渲染
-   * @param v
-   * @param code
-   * @param renderTag
-   */
-  renderDictNative: (v, code, renderTag = false) => {
-    let text = ''
-    let color: string | undefined = ''
-    let style: string | undefined = ''
-    const array = getDictItemsByCode(code) || []
-    const obj = array.filter(item => {
-      return item.dictValue == v
-    })
-    if (obj.length > 0) {
-      text = obj[0].dictLabel
-      style = obj[0].cssClass
-      switch (obj[0].listClass) {
-        case 'primary':
-          color = 'processing'
-          break
-        case 'info':
-          color = 'default'
-          break
-        case 'success':
-          color = 'success'
-          break
-        case 'warning':
-          color = 'warning'
-          break
-        case 'danger':
-          color = 'danger'
-          break
-      }
-    }
-    return isEmpty(text) || !renderTag ? h('span', { style }, text) : h(Tag, { color }, () => text)
-  },
-  /**
    * 渲染图片
    * @param text
    */
@@ -173,7 +119,74 @@ const render = {
   },
   renderTag(text, color) {
     return isEmpty(text) ? h('span', text) : h(Tag, { color }, () => text)
+  },
+  /**
+   * 根据字典编码 渲染
+   * @param v 值
+   * @param code 字典编码
+   * @param renderTag 是否使用tag渲染
+   */
+  renderDict: (v, code, renderTag = false) => {
+    let text = ''
+    const array = getDictItemsByCode(code) || []
+    const obj = array.filter(item => {
+      return item.dictValue == v
+    })
+    if (obj.length > 0) {
+      text = obj[0].dictLabel
+    }
+    return isEmpty(text) || !renderTag ? h('span', text) : h(Tag, text)
+  },
+  /**
+   * 根据字典渲染
+   * @param v
+   * @param code
+   * @param renderTag
+   */
+  renderDictNative: (v, code, renderTag = false) => {
+    let text = ''
+    let color: string | undefined = ''
+    let style: string | undefined = ''
+    const array = getDictItemsByCode(code) || []
+    const obj = array.filter(item => {
+      return item.dictValue == v
+    })
+    if (obj.length > 0) {
+      text = obj[0].dictLabel
+      style = obj[0].cssClass
+      color = buildDictStyle(obj[0].listClass)
+    }
+    return isEmpty(text) || !renderTag ? h('span', { style }, text) : h(Tag, { color }, () => text)
   }
+}
+
+/**
+ * 构建字典样式
+ *
+ * @param listClass
+ * @return color
+ */
+function buildDictStyle(listClass) {
+  let color: string | undefined = ''
+  switch (listClass) {
+    case 'primary':
+      color = 'processing'
+      break
+    case 'success':
+      color = 'success'
+      break
+    case 'warning':
+      color = 'warning'
+      break
+    case 'danger':
+      color = 'danger'
+      break
+    case 'info':
+    default:
+      color = 'default'
+      break
+  }
+  return color
 }
 
 /**
@@ -181,7 +194,7 @@ const render = {
  */
 function downloadFile(url) {
   if (!url) {
-    createMessage.warning('未知的文件').then()
+    createMessage.warning('未知的文件')
     return
   }
   if (url.indexOf(',') > 0) {

@@ -1,6 +1,9 @@
-import { isAccountExist } from '/@/api/system/user'
 import { getAllRoleList } from '/@/api/system/role'
 import { BasicColumn, FormSchema } from '/@/components/Table'
+import { h } from 'vue'
+import { Switch } from 'ant-design-vue'
+import { useMessage } from '/@/hooks/web/useMessage'
+import { setSysUserStatus } from '/@/api/system/account'
 
 export const columns: BasicColumn[] = [
   {
@@ -13,11 +16,11 @@ export const columns: BasicColumn[] = [
     dataIndex: 'nickname',
     width: 120
   },
-  {
-    title: '邮箱',
-    dataIndex: 'email',
-    width: 120
-  },
+  // {
+  //   title: '邮箱',
+  //   dataIndex: 'email',
+  //   width: 120
+  // },
   {
     title: '创建时间',
     dataIndex: 'createTime',
@@ -27,6 +30,39 @@ export const columns: BasicColumn[] = [
     title: '角色',
     dataIndex: 'role',
     width: 200
+  },
+  {
+    title: '状态',
+    dataIndex: 'status',
+    width: 120,
+    customRender: ({ record }) => {
+      if (!Reflect.has(record, 'pendingStatus')) {
+        record.pendingStatus = false
+      }
+      return h(Switch, {
+        checked: record.status === 0,
+        checkedChildren: '已启用',
+        unCheckedChildren: '已禁用',
+        loading: record.pendingStatus,
+        onChange(checked: boolean) {
+          record.pendingStatus = true
+          const newStatus = checked ? 0 : 1
+          const { createMessage } = useMessage()
+
+          setSysUserStatus({ id: record.id, status: newStatus })
+            .then(() => {
+              record.status = newStatus
+              createMessage.success(`已成功修改用户状态`)
+            })
+            .catch(() => {
+              createMessage.error('修改用户状态失败')
+            })
+            .finally(() => {
+              record.pendingStatus = false
+            })
+        }
+      })
+    }
   },
   {
     title: '备注',
@@ -59,29 +95,29 @@ export const searchFormSchema: FormSchema[] = [
 export const accountFormSchema: FormSchema[] = [
   {
     field: 'account',
-    label: '用户名',
+    label: '账户',
     component: 'Input',
-    helpMessage: ['本字段演示异步验证', '不能输入带有admin的用户名'],
+    helpMessage: ['用户登录账户不可重复'],
     rules: [
       {
         required: true,
-        message: '请输入用户名'
-      },
-      {
-        validator(_, value) {
-          return new Promise((resolve, reject) => {
-            isAccountExist(value)
-              .then(() => resolve())
-              .catch(err => {
-                reject(err.message || '验证失败')
-              })
-          })
-        }
+        message: '请输入账户'
       }
+      // {
+      //   validator(_, value) {
+      //     return new Promise((resolve, reject) => {
+      //       isAccountExist({ account: value })
+      //         .then(() => resolve())
+      //         .catch(err => {
+      //           reject(err.message || '验证失败')
+      //         })
+      //     })
+      //   }
+      // }
     ]
   },
   {
-    field: 'pwd',
+    field: 'password',
     label: '密码',
     component: 'InputPassword',
     required: true,
@@ -89,17 +125,18 @@ export const accountFormSchema: FormSchema[] = [
   },
   {
     label: '角色',
-    field: 'role',
+    field: 'roleIds',
     component: 'ApiSelect',
     componentProps: {
       api: getAllRoleList,
       labelField: 'roleName',
-      valueField: 'roleValue'
+      valueField: 'id',
+      mode: 'multiple'
     },
     required: true
   },
   {
-    field: 'dept',
+    field: 'deptId',
     label: '所属部门',
     component: 'TreeSelect',
     componentProps: {
@@ -118,17 +155,81 @@ export const accountFormSchema: FormSchema[] = [
     component: 'Input',
     required: true
   },
-
   {
     label: '邮箱',
     field: 'email',
     component: 'Input',
     required: true
   },
-
   {
     label: '备注',
     field: 'remark',
     component: 'InputTextArea'
+  }
+]
+
+export const passwordFormSchema: FormSchema[] = [
+  {
+    field: 'id',
+    label: 'ID',
+    component: 'Input',
+    show: false
+  },
+  {
+    field: 'passwordNew',
+    label: '密码',
+    component: 'StrengthMeter',
+    componentProps: {
+      placeholder: '密码'
+    },
+    rules: [
+      {
+        required: true,
+        whitespace: true,
+        message: '请输入密码！'
+      },
+      {
+        pattern: new RegExp('[^\\u4e00-\\u9fa5]+'),
+        type: 'string',
+        message: '密码不能输入汉字！'
+      },
+      {
+        min: 6,
+        max: 18,
+        message: '长度必需在6-18之间！'
+      }
+    ]
+  },
+  {
+    field: 'confirmPassword',
+    label: '确认密码',
+    component: 'InputPassword',
+
+    dynamicRules: ({ values }) => {
+      return [
+        {
+          required: true,
+          validator: (_, value) => {
+            if (!value) {
+              return Promise.reject('确认密码不能为空')
+            }
+            if (value !== values.passwordNew) {
+              return Promise.reject('两次输入的密码不一致!')
+            }
+            return Promise.resolve()
+          }
+        },
+        {
+          pattern: new RegExp('[^\\u4e00-\\u9fa5]+'),
+          type: 'string',
+          message: '密码不能输入汉字！'
+        },
+        {
+          min: 6,
+          max: 18,
+          message: '长度必需在6-18之间！'
+        }
+      ]
+    }
   }
 ]

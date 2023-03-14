@@ -38,7 +38,7 @@ export const columns: BasicColumn[] = [
           const newStatus = checked ? 0 : 1
           const { createMessage } = useMessage()
 
-          setRoleStatus(record.id, newStatus)
+          setRoleStatus({ id: record.id, status: newStatus })
             .then(() => {
               record.status = newStatus
               createMessage.success(`已成功修改角色状态`)
@@ -66,7 +66,7 @@ export const columns: BasicColumn[] = [
 
 export const searchFormSchema: FormSchema[] = [
   {
-    field: 'roleNme',
+    field: 'roleName',
     label: '角色名称',
     component: 'Input',
     colProps: { span: 8 }
@@ -80,12 +80,6 @@ export const searchFormSchema: FormSchema[] = [
       placeholder: '请选择状态',
       stringToNumber: true
     },
-    // componentProps: {
-    //   options: [
-    //     { label: '启用', value: 0 },
-    //     { label: '停用', value: 1 }
-    //   ]
-    // },
     colProps: { span: 8 }
   }
 ]
@@ -134,8 +128,8 @@ export const formSchema: FormSchema[] = [
     component: 'InputTextArea'
   },
   {
-    label: ' ',
-    field: 'menu',
+    label: '',
+    field: 'menuIds',
     slot: 'menu',
     component: 'Input'
   }

@@ -7,9 +7,6 @@ enum Api {
   phoneLogin = '/meta-auth/phoneLogin',
   //第三方登录
   thirdLogin = '/meta-auth/oauth/social',
-  TestRetry = '/testRetry',
-  IsAccountExist = '',
-  GetPermCode = '/sys/permission/getPermCode',
   // 获取图形验证码的接口
   getImageCaptcha = '/meta-auth/oauth/captcha/image',
   //注册接口

@@ -1,4 +1,4 @@
-import { BasicPageParams, BasicFetchResult } from '/@/api/model/baseModel'
+import { BasicFetchResult, BasicPageParams } from '/@/api/model/baseModel'
 
 // 定义查询参数
 export type MenuVO = BasicPageParams & {
@@ -10,6 +10,7 @@ export type MenuVO = BasicPageParams & {
 export interface RouteItem {
   id: number
   path: string
+  permission: string
   component: any
   meta: RouteMetaVO
   type: number
@@ -41,6 +42,7 @@ export interface Menu {
   parentId?: number
   name?: string
   title?: string
+  permission?: string
   component?: any
   icon?: string
   path?: string
@@ -54,8 +56,6 @@ export interface Menu {
   hideHeader?: number
   keepalive?: number
   requireAuth?: number
-  iframe?: number
-  iframeSrc?: string
   sort?: number
   createBy?: any
   updateBy?: any

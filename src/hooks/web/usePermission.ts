@@ -6,9 +6,8 @@ import { useUserStore } from '/@/store/modules/user'
 
 import { useTabs } from './useTabs'
 
-import { router, resetRouter } from '/@/router'
+import { resetRouter, router } from '/@/router'
 // import { RootRoute } from '/@/router/routes';
-
 import projectSetting from '/@/settings/projectSetting'
 import { PermissionModeEnum } from '/@/enums/appEnum'
 import { RoleEnum } from '/@/enums/roleEnum'
@@ -54,6 +53,7 @@ export function usePermission() {
     closeAll()
   }
 
+  const ALL_PERMISSION = '*:*:*'
   /**
    * Determine whether there is permission
    */
@@ -75,7 +75,7 @@ export function usePermission() {
     if (PermissionModeEnum.BACK === permMode) {
       const allCodeList = permissionStore.getPermCodeList as string[]
       if (!isArray(value)) {
-        return allCodeList.includes(value)
+        return allCodeList.includes(value) || allCodeList.includes(ALL_PERMISSION)
       }
       return (intersection(value, allCodeList) as string[]).length > 0
     }

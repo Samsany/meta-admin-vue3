@@ -1,15 +1,34 @@
-import { BasicFetchResult, BasicPageParams } from '/@/api/model/baseModel'
+import { BasicPageParams } from '/@/api/model/baseModel'
 
 // 定义查询参数
-export type RoleVO = BasicPageParams & {
-  name?: string
-  code?: string
+export type RoleParamsVO = BasicPageParams & {
+  roleName?: string
+  roleCode?: string
 }
 export interface GetRoleInfoModel {
   id?: number
-  name: string
-  code: string
+  roleName: string
+  roleCode: string
+  status: number
+  remark: string
+  createTime: string
+  createBy: string
+  menuIds?: number[]
 }
 
-// 根据对象生成响应模型
-export type RoleDTO = BasicFetchResult<GetRoleInfoModel>
+export interface RoleInfo {
+  id?: number
+  parentId?: number
+  ancestors?: string
+  deptName?: string
+  status?: number
+  sort?: number
+  leader?: null
+  phone?: null
+  email?: null
+  createBy?: string
+  updateBy?: string
+  createTime?: string
+  updateTime?: string
+  remark?: string
+}

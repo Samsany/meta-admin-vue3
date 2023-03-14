@@ -14,7 +14,7 @@ export function createStateGuard(router: Router) {
       const userStore = useUserStore()
       const appStore = useAppStore()
       const permissionStore = usePermissionStore()
-      appStore.resetAllState().then()
+      appStore.resetAllState()
       permissionStore.resetState()
       tabStore.resetState()
       userStore.resetState()

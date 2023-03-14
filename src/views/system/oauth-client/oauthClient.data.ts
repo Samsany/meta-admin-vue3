@@ -59,10 +59,10 @@ export const columns: VxeGridPropTypes.Columns = [
             setOauthClientStatus({ id: row.id, status: newStatus })
               .then(() => {
                 row.status = newStatus
-                createMessage.success(`已成功修改客户端状态`).then()
+                createMessage.success(`已成功修改客户端状态`)
               })
               .catch(() => {
-                createMessage.error('修改客户端状态失败').then()
+                createMessage.error('修改客户端状态失败')
               })
               .finally(() => {
                 row.pendingStatus = false

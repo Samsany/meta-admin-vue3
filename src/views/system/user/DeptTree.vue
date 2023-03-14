@@ -11,32 +11,26 @@
     />
   </div>
 </template>
-<script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue'
+<script lang="ts" setup name="DeptTree">
+import { onMounted, ref, unref } from 'vue'
 
 import { BasicTree, TreeItem } from '/@/components/Tree'
 import { getDeptList } from '/@/api/system/dept'
 
-export default defineComponent({
-  name: 'DeptTree',
-  components: { BasicTree },
+// emits
+const emit = defineEmits(['success', 'register', 'select'])
+const treeData = ref<TreeItem[]>([])
 
-  emits: ['select'],
-  setup(_, { emit }) {
-    const treeData = ref<TreeItem[]>([])
+async function fetch() {
+  treeData.value = (await getDeptList({ queryMode: 'tree' })) as unknown as TreeItem[]
+  emit('register', unref(treeData))
+}
 
-    async function fetch() {
-      treeData.value = (await getDeptList({ queryMode: 'tree' })) as unknown as TreeItem[]
-    }
+function handleSelect(keys) {
+  emit('select', keys[0])
+}
 
-    function handleSelect(keys) {
-      emit('select', keys[0])
-    }
-
-    onMounted(() => {
-      fetch()
-    })
-    return { treeData, handleSelect }
-  }
+onMounted(() => {
+  fetch()
 })
 </script>

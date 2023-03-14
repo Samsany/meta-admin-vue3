@@ -4,6 +4,10 @@ export interface BasicPageParams {
 }
 
 export interface BasicFetchResult<T> {
-  list: T[]
   totalCount: number
+  totalPage: number
+  pageNum: number
+  pageSize: number
+  hasNextPage: boolean
+  list: T[]
 }

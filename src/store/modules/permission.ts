@@ -161,6 +161,7 @@ export const usePermissionStore = defineStore({
           Object.keys(appRouteMeta).forEach(item => {
             if (!appRouteMeta[item]) delete appRouteMeta[item]
           })
+          // @ts-ignore
           const route: AppRouteRecordRaw = {
             name,
             meta: appRouteMeta,
@@ -317,7 +318,7 @@ export const usePermissionStore = defineStore({
           // routes = [PAGE_NOT_FOUND_ROUTE, ...routeList];
           routes = [...routeList]
 
-          console.log(routes)
+          // console.log(routes)
 
           break
       }

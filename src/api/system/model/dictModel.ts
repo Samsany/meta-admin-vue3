@@ -43,4 +43,4 @@ export interface GetDictDataInfoModel {
 }
 
 // 根据对象生成响应模型
-export type DictDataDTO = BasicFetchResult<GetDictDataInfoModel>
+export type GetDictDataListResultModel = BasicFetchResult<GetDictDataInfoModel>

@@ -3,13 +3,14 @@ import { GetUserInfoModel } from './model/userModel'
 
 import { ErrorMessageMode } from '/#/axios'
 import { useMessage } from '/@/hooks/web/useMessage'
+import { AccountExist } from '/@/api/system/model/accountModel'
 
 const { createErrorModal } = useMessage()
 enum Api {
-  GetUserInfo = '/meta-auth/auth/user/info',
+  GetUserInfo = '/meta-admin/auth/user/info',
   Logout = '/meta-auth/auth/logout',
+  IsAccountExist = '/meta-admin/user/checkUsernameExist',
   TestRetry = '/testRetry',
-  IsAccountExist = '',
   GetPermCode = '/sys/permission/getPermCode',
   //校验用户接口
   checkOnlyUser = '/sys/user/checkOnlyUser',
@@ -24,7 +25,7 @@ enum Api {
 }
 
 /**
- * 用户详情
+ * 用户登录详情接口
  *
  * @description: getUserInfo
  */
@@ -37,6 +38,10 @@ export function getUserInfo(mode: ErrorMessageMode = 'message') {
  */
 export function doLogout() {
   return defHttp.get({ url: Api.Logout })
+}
+
+export function isAccountExist(params: AccountExist) {
+  return defHttp.get({ url: Api.IsAccountExist, params })
 }
 
 /**

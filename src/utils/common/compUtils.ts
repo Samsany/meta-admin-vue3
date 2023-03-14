@@ -370,3 +370,25 @@ export function stringIsNull(str) {
   // 两个 == 可以同时判断 null 和 undefined
   return str == null || str === 'null' || str === 'undefined'
 }
+
+/**
+ * 移除url前缀
+ * @return {string}
+ * @param url
+ */
+export function removeHttp(url: string) {
+  return url.replace(/^https?:\/\//, '')
+}
+/**
+ * 获取url前缀
+ * @return {string}
+ * @param url
+ */
+export function getUrlPrefix(url: string) {
+  if (url.startsWith('https://')) {
+    return 'https://'
+  }
+  if (url.startsWith('http://')) {
+    return 'http://'
+  }
+}

@@ -1,8 +1,8 @@
 import { defHttp } from '/@/utils/http/axios'
 
 import { ErrorMessageMode } from '/#/axios'
-import { GetOauthClientInfoModel, OauthClientDTO, OauthClientVO } from '/@/api/system/model/OauthClientModel'
-import { UpdateStatusVO } from '/@/api/system/model/commonModel'
+import { GetOauthClientInfoModel, OauthClientDTO, OauthClientVO } from '/@/api/system/model/oauthClientModel'
+import { UpdateStatusDTO } from '/@/api/system/model/commonModel'
 
 enum Api {
   GetOauthClientList = '/meta-admin/oauth-client/list',
@@ -41,7 +41,7 @@ export const updateOauthClient = (data: GetOauthClientInfoModel) => {
 }
 
 // 修改客户端状态
-export const setOauthClientStatus = (data: UpdateStatusVO) => {
+export const setOauthClientStatus = (data: UpdateStatusDTO) => {
   return defHttp.get({ url: Api.SetOauthClientStatus, params: data })
 }
 

@@ -26,18 +26,20 @@
         </template>
       </template>
     </BasicTable>
-    <RoleModal @register="registerModal" @success="handleSuccess" />
+    <!--    <RoleModal @register="registerModal" @success="handleSuccess" />-->
+    <RoleDrawer @register="registerDrawer" @success="handleSuccess" />
   </div>
 </template>
 <script lang="ts" setup name="RoleManagement">
 import { BasicTable, TableAction, useTable } from '/@/components/Table'
-import { getRoleList } from '/@/api/system/role'
+import { getRoleInfo, getRoleList } from '/@/api/system/role'
 import { columns, searchFormSchema } from './role.data'
-import { useModal } from '/@/components/Modal'
-import RoleModal from './RoleModal.vue'
+import { useDrawer } from '/@/components/Drawer'
+import RoleDrawer from '/@/views/system/role/RoleDrawer.vue'
+import { reactive } from 'vue'
 
-// const [registerDrawer, { openDrawer }] = useDrawer()
-const [registerModal, { openModal }] = useModal()
+const [registerDrawer, { openDrawer }] = useDrawer()
+// const [registerModal, { openModal }] = useModal()
 const [registerTable, { reload }] = useTable({
   title: '角色列表',
   api: getRoleList,
@@ -67,23 +69,25 @@ const [registerTable, { reload }] = useTable({
 })
 
 function handleCreate() {
-  // openDrawer(true, {
-  //   isUpdate: false,
-  // })
-  openModal(true, {
+  openDrawer(true, {
     isUpdate: false
   })
+  // openModal(true, {
+  //   isUpdate: false
+  // })
 }
 
-function handleEdit(record: Recordable) {
-  // openDrawer(true, {
-  //   record,
-  //   isUpdate: true,
-  // })
-  openModal(true, {
+async function handleEdit(row: Recordable) {
+  // 获取菜单详情
+  const record = reactive(await getRoleInfo({ id: row.id }))
+  openDrawer(true, {
     record,
     isUpdate: true
   })
+  // openModal(true, {
+  //   record,
+  //   isUpdate: true
+  // })
 }
 
 function handleDelete(record: Recordable) {

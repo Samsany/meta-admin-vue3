@@ -1,7 +1,8 @@
 import { defHttp } from '/@/utils/http/axios'
-import { GetRoleInfoModel, RoleVO } from './model/roleModel'
+import { GetRoleInfoModel, RoleParamsVO } from './model/roleModel'
 
 import { ErrorMessageMode } from '/#/axios'
+import { UpdateStatusDTO } from '/@/api/system/model/commonModel'
 
 enum Api {
   GetAllRoleList = '/meta-admin/role/allList',
@@ -17,7 +18,7 @@ enum Api {
  * @description: Get user Role based on id
  */
 export const getAllRoleList = (mode: ErrorMessageMode = 'message') => {
-  return defHttp.get<GetRoleInfoModel>(
+  return defHttp.get(
     { url: Api.GetAllRoleList },
     {
       errorMessageMode: mode
@@ -30,8 +31,8 @@ export const getAllRoleList = (mode: ErrorMessageMode = 'message') => {
  *
  * @description: Get user Role based on id
  */
-export const getRoleList = (params?: RoleVO, mode: ErrorMessageMode = 'message') => {
-  return defHttp.get<GetRoleInfoModel>(
+export const getRoleList = (params?: RoleParamsVO, mode: ErrorMessageMode = 'message') => {
+  return defHttp.get(
     { url: Api.GetRoleList, params },
     {
       errorMessageMode: mode
@@ -41,7 +42,7 @@ export const getRoleList = (params?: RoleVO, mode: ErrorMessageMode = 'message')
 
 // 查询角色详情
 export const getRoleInfo = (params: { id: number }) => {
-  return defHttp.get<GetRoleInfoModel>({ url: Api.GetOrAddOrUpdateRole + `/${params.id}` })
+  return defHttp.get({ url: Api.GetOrAddOrUpdateRole + `/${params.id}` })
 }
 
 // 新增角色
@@ -55,8 +56,8 @@ export const updateRole = (data: GetRoleInfoModel) => {
 }
 
 // 修改角色状态
-export const setRoleStatus = (id: number | string, status: number | string) => {
-  return defHttp.get({ url: Api.SetRoleStatus + `/${id}`, params: { status } })
+export const setRoleStatus = (data: UpdateStatusDTO) => {
+  return defHttp.put({ url: Api.SetRoleStatus, data })
 }
 
 // 删除角色

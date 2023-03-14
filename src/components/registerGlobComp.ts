@@ -60,9 +60,6 @@ export function registerGlobComp(app: App) {
   })
 
   app
-    .use(Input)
-    .use(Button)
-    .use(Layout)
     .use(VXETable)
     .use(Select)
     .use(Alert)

@@ -17,31 +17,26 @@ export interface ThirdLoginParams {
   thirdType: string
 }
 
-export interface RoleInfo {
-  roleName: string
-  value: string
-}
-
 /**
  * @description: Login interface return value
  */
 export interface LoginResultModel {
   userId: string | number
+  avatar?: string
+  type: number
+  username: string
+  roles: string[]
   bearerType: string
   accessToken: string
   refreshToken: string
-  token: string
-  role: RoleInfo
+  jti: string
+  expiresIn: number
 }
 
 /**
  * @description: Get user information return value
  */
 export interface GetUserInfoModel {
-  // 角色组
-  roles: RoleInfo[]
-  // 权限组
-  permissions: string[]
   // 用户id
   userId: string | number
   // 用户名
@@ -52,6 +47,10 @@ export interface GetUserInfoModel {
   avatar: string
   // 介绍
   desc?: string
+  // 角色组
+  roles?: string[]
+  // 权限组
+  permissions?: string[]
   homePath?: string
 }
 

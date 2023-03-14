@@ -1,8 +1,7 @@
-import type { LoginInfo, UserInfo } from '/#/store'
+import type { LoginInfo } from '/#/store'
 import type { ErrorMessageMode } from '/#/axios'
 import { defineStore } from 'pinia'
 import { store } from '/@/store'
-import { RoleEnum } from '/@/enums/roleEnum'
 import { PageEnum } from '/@/enums/pageEnum'
 import { LOGIN_INFO_KEY, PERMS_KEY, ROLES_KEY, TOKEN_KEY, USER_INFO_KEY } from '/@/enums/cacheEnum'
 import { getAuthCache, setAuthCache } from '/@/utils/auth'
@@ -19,9 +18,10 @@ import { isArray } from '/@/utils/is'
 import { h } from 'vue'
 import { BasicKeys } from '/@/utils/cache/persistent'
 import { useDictStore } from '/@/store/modules/dict'
+import { RoleEnum } from '/@/enums/roleEnum'
 
 interface UserState {
-  userInfo: Nullable<UserInfo>
+  userInfo: Nullable<GetUserInfoModel>
   //登录返回信息
   loginInfo?: Nullable<LoginInfo>
   token?: string
@@ -50,8 +50,8 @@ export const useUserStore = defineStore({
     loginInfo: null
   }),
   getters: {
-    getUserInfo(): UserInfo {
-      return this.userInfo || getAuthCache<UserInfo>(USER_INFO_KEY) || {}
+    getUserInfo(): GetUserInfoModel {
+      return this.userInfo || getAuthCache<GetUserInfoModel>(USER_INFO_KEY) || {}
     },
     getLoginInfo(): LoginInfo {
       return this.loginInfo || getAuthCache<LoginInfo>(LOGIN_INFO_KEY) || {}
@@ -60,7 +60,7 @@ export const useUserStore = defineStore({
       return this.token || getAuthCache<string>(TOKEN_KEY)
     },
     getRoleList(): RoleEnum[] {
-      return this.roleList.length > 0 ? this.roleList : getAuthCache<RoleEnum[]>(ROLES_KEY)
+      return this.roleList.length > 0 ? this.roleList : getAuthCache<[]>(ROLES_KEY)
     },
     getPermissionList(): string[] {
       return this.permissionList.length > 0 ? this.permissionList : getAuthCache<string[]>(<BasicKeys>PERMS_KEY)
@@ -81,7 +81,11 @@ export const useUserStore = defineStore({
       this.roleList = roleList
       setAuthCache(ROLES_KEY, roleList)
     },
-    setUserInfo(info: UserInfo | null) {
+    setPermissionList(perms: string[]) {
+      this.permissionList = perms
+      setAuthCache(PERMS_KEY, perms)
+    },
+    setUserInfo(info: GetUserInfoModel | null) {
       this.userInfo = info
       this.lastUpdateTime = new Date().getTime()
       setAuthCache(USER_INFO_KEY, info)
@@ -135,9 +139,9 @@ export const useUserStore = defineStore({
       try {
         const { goHome = true, mode, ...loginParams } = params
         const data = await phoneLoginApi(loginParams, mode)
-        const { token } = data
+        const { accessToken } = data
         // save token
-        this.setToken(token)
+        this.setToken(accessToken)
         return this.afterLoginAction(goHome, data)
       } catch (error) {
         return Promise.reject(error)
@@ -156,9 +160,9 @@ export const useUserStore = defineStore({
       try {
         const { goHome = true, mode, ...ThirdLoginParams } = params
         const data = await thirdLogin(ThirdLoginParams, mode)
-        const { token } = data
+        const { accessToken } = data
         // save token
-        this.setToken(token)
+        this.setToken(accessToken)
         return this.afterLoginAction(goHome, data)
       } catch (error) {
         return Promise.reject(error)
@@ -208,13 +212,21 @@ export const useUserStore = defineStore({
     async getUserInfoAction(): Promise<GetUserInfoModel | null> {
       if (!this.getToken) return null
       const userInfo = await getUserInfo()
-      const { roles = [] } = userInfo
+      const { roles = [], permissions = [] } = userInfo
       if (isArray(roles)) {
-        const roleList = roles.map(item => item.value) as RoleEnum[]
+        const roleList = roles as RoleEnum[]
         this.setRoleList(roleList)
       } else {
         userInfo.roles = []
         this.setRoleList([])
+      }
+
+      if (isArray(permissions)) {
+        // const roleList = roles as RoleEnum[]
+        this.setPermissionList(permissions)
+      } else {
+        userInfo.roles = []
+        this.setPermissionList([])
       }
 
       // 设置全局字典

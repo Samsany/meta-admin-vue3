@@ -51,13 +51,13 @@ const { close } = useTabs(router)
 const dictType: Ref<string | string[]> = ref(router.currentRoute.value.params.id || '')
 
 onMounted(async () => {
-  const dictList = await getDictList({ queryMode: 'list' })
-  // console.log('请求数据', dictList)
+  const { list } = await getDictList({ queryMode: 'list' })
+  console.log('请求数据', list)
   const { setFieldsValue, updateSchema } = getForm()
   await updateSchema({
     field: 'dictType',
     componentProps: {
-      options: dictList
+      options: list
     }
   })
   await setFieldsValue({

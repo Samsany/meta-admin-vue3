@@ -50,7 +50,7 @@ export function useThirdLogin() {
       if (typeof token === 'string') {
         //如果是字符串类型 说明是token信息
         if (token === '登录失败') {
-          createMessage.warning(token).then()
+          createMessage.warning(token)
         } else if (token.includes('绑定手机号')) {
           bindingPhoneModal.value = true
           const strings = token.split(',')
@@ -65,7 +65,7 @@ export function useThirdLogin() {
           thirdLoginInfo.value = { ...token }
         }
       } else {
-        createMessage.warning('不识别的信息传递').then()
+        createMessage.warning('不识别的信息传递')
       }
     }
     window.addEventListener('message', receiveMessage, false)

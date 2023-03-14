@@ -1,6 +1,7 @@
 export default {
   api: {
     operationFailed: '操作失败',
+    successTip: '操作成功',
     errorTip: '错误提示',
     errorMessage: '操作失败,系统异常!',
     timeoutMessage: '登录超时,请重新登录!',

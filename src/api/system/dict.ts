@@ -1,4 +1,10 @@
-import { DictDataVO, DictVO, GetDictDataInfoModel, GetDictInfoModel } from './model/dictModel'
+import {
+  DictDataVO,
+  DictVO,
+  GetDictDataInfoModel,
+  GetDictDataListResultModel,
+  GetDictInfoModel
+} from './model/dictModel'
 import { defHttp } from '/@/utils/http/axios'
 import { ErrorMessageMode } from '/#/axios'
 
@@ -52,7 +58,7 @@ export const delDict = (id: number) => {
  * @description: Get user Role based on id
  */
 export const getDictDataList = (params?: DictDataVO, mode: ErrorMessageMode = 'message') => {
-  return defHttp.get(
+  return defHttp.get<GetDictDataListResultModel>(
     { url: Api.GetDictDataList, params },
     {
       errorMessageMode: mode

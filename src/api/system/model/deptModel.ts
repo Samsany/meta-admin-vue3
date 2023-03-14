@@ -18,5 +18,22 @@ export interface GetDeptInfoModel {
   remark?: string
 }
 
+export interface DepartInfo {
+  id?: number
+  parentId?: number
+  ancestors?: string
+  deptName?: string
+  status?: number
+  sort?: number
+  leader?: string
+  phone?: string
+  email?: string
+  createBy?: string
+  updateBy?: string
+  createTime?: string
+  updateTime?: string
+  remark?: string
+}
+
 // 根据对象生成响应模型
 export type DeptDTO = BasicFetchResult<GetDeptInfoModel>

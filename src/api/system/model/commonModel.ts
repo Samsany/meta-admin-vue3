@@ -1,5 +1,5 @@
 // bean状态更新
-export interface UpdateStatusVO {
+export interface UpdateStatusDTO {
   id: number
   status: number
 }

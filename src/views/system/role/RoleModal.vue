@@ -5,7 +5,7 @@
         <BasicTree
           v-model:value="model[field]"
           :treeData="treeData"
-          :fieldNames="{ title: 'menuName', key: 'id' }"
+          :fieldNames="{ title: 'title', key: 'id' }"
           checkable
           toolbar
           title="菜单分配"
@@ -23,6 +23,7 @@ import { formSchema } from './role.data'
 import { addRole, updateRole } from '/@/api/system/role'
 import { useMessage } from '/@/hooks/web/useMessage'
 import { BasicTree, TreeItem } from '/@/components/Tree'
+import { getTreeMenuList } from '/@/api/system/menu'
 
 // emits
 const emit = defineEmits(['success', 'register'])
@@ -37,23 +38,18 @@ const [registerForm, { resetFields, setFieldsValue, validate }] = useForm({
 })
 
 const [registerModal, { setModalProps, closeModal }] = useModalInner(async data => {
-  resetFields()
+  await resetFields()
   setModalProps({ confirmLoading: false })
+  if (unref(treeData).length === 0) {
+    treeData.value = (await getTreeMenuList()) as any as TreeItem[]
+  }
   isUpdate.value = !!data?.isUpdate
 
   if (unref(isUpdate)) {
-    setFieldsValue({
+    await setFieldsValue({
       ...data.record
     })
   }
-  // const { list: treeData } = await getDeptList()
-  // treeData.unshift({ id: 0, deptName: '根部门' })
-  // console.log('部门树', treeData)
-
-  // updateSchema({
-  //   field: 'parentId',
-  //   componentProps: { treeData },
-  // })
 })
 
 const getTitle = computed(() => (!unref(isUpdate) ? '新增角色' : '编辑角色'))

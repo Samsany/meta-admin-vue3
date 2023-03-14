@@ -65,6 +65,7 @@ import { LoadingOutlined } from '@ant-design/icons-vue'
 
 const props = defineProps({
   value: propTypes.oneOfType([propTypes.string, propTypes.number, propTypes.array]),
+  setDefault: propTypes.bool,
   dictCode: propTypes.string,
   type: propTypes.string,
   placeholder: propTypes.string,
@@ -82,7 +83,7 @@ const props = defineProps({
     required: false
   }
 })
-const emit = defineEmits(['options-change', 'change'])
+const emit = defineEmits(['options-change', 'change', 'update:value'])
 
 const emitData = ref<any[]>([])
 const dictOptions = ref<any[]>([])
@@ -99,6 +100,7 @@ let isFirstLoadEcho = true
 const compType = computed(() => {
   return !props.type || props.type === 'list' ? 'select' : props.type
 })
+
 /**
  * 监听字典code
  */
@@ -117,7 +119,7 @@ watchEffect(() => {
 })
 
 // 使用useRuleFormItem定义的value，会有一个问题，如果不是操作设置的值而是代码设置的控件值而不能触发change事件
-// 此处添加空值的change事件,即当组件调用de代码设置value为''也能触发change事件
+// 此处添加空值的change事件,即当组件调用的代码设置value为''也能触发change事件
 watch(
   () => props.value,
   () => {
@@ -130,10 +132,13 @@ watch(
 // 使用useRuleFormItem定义的value，会有一个问题，如果不是操作设置的值而是代码设置的控件值而不能触发change事件
 async function initDictData() {
   let { dictCode, stringToNumber } = props
-  //根据字典Code, 初始化字典数组
+  // 根据字典Code, 初始化字典数组
   const dictData = await initDictOptions(dictCode)
   dictOptions.value = dictData.reduce((prev, next) => {
     if (next) {
+      // 设置默认值
+      if (props.setDefault && next.isDefault && next.dictValue) state.value = next.dictValue
+
       const value = next.dictValue
       prev.push({
         label: next.dictLabel,

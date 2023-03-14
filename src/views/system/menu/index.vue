@@ -11,10 +11,18 @@
           <TableAction
             :actions="[
               {
+                label: '新增下级',
+                icon: 'clarity:note-edit-line',
+                onClick: handleSubAdd.bind(null, record),
+                ifShow: !isButton(record.type)
+              },
+              {
+                label: '编辑',
                 icon: 'clarity:note-edit-line',
                 onClick: handleEdit.bind(null, record)
               },
               {
+                label: '删除',
                 icon: 'ant-design:delete-outlined',
                 color: 'error',
                 popConfirm: {
@@ -34,13 +42,16 @@
 <script setup lang="ts" name="MenuManagement">
 import { nextTick, reactive } from 'vue'
 
-import { BasicTable, useTable, TableAction } from '/@/components/Table'
-import { getTreeMenuList, getMenuInfo } from '/@/api/system/menu'
+import { BasicTable, TableAction, useTable } from '/@/components/Table'
+import { delMenu, getMenuInfo, getTreeMenuList } from '/@/api/system/menu'
 
 import { useDrawer } from '/@/components/Drawer'
 import MenuDrawer from './MenuDrawer.vue'
 
-import { columns, searchFormSchema } from './menu.data'
+import { columns, isButton, searchFormSchema } from './menu.data'
+import { useMessage } from '/@/hooks/web/useMessage'
+
+const { createMessage } = useMessage()
 
 const [registerDrawer, { openDrawer }] = useDrawer()
 const [registerTable, { reload, expandAll, collapseAll }] = useTable({
@@ -60,7 +71,7 @@ const [registerTable, { reload, expandAll, collapseAll }] = useTable({
   showIndexColumn: false,
   canResize: false,
   actionColumn: {
-    width: 80,
+    width: 250,
     title: '操作',
     dataIndex: 'action',
     // slots: { customRender: 'action' },
@@ -74,10 +85,20 @@ function handleCreate() {
   })
 }
 
+async function handleSubAdd(row: Recordable) {
+  const record = {
+    parentId: row.id
+  }
+  openDrawer(true, {
+    record,
+    isAddSub: true,
+    isUpdate: false
+  })
+}
+
 async function handleEdit(row: Recordable) {
   // 获取菜单详情
   const record = reactive(await getMenuInfo({ id: row.id }))
-  // console.log(record)
 
   openDrawer(true, {
     record,
@@ -85,8 +106,11 @@ async function handleEdit(row: Recordable) {
   })
 }
 
-function handleDelete(record: Recordable) {
-  console.log(record)
+async function handleDelete(record: Recordable) {
+  // console.log(record)
+  await delMenu([record.id])
+  createMessage.success(`删除成功`)
+  handleSuccess()
 }
 
 function handleSuccess() {
