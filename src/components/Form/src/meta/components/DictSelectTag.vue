@@ -55,7 +55,7 @@ export default {
 }
 </script>
 <script lang="ts" setup name="DictSelectTag">
-import { computed, ref, unref, useAttrs, watch, watchEffect } from 'vue'
+import { computed, ref, useAttrs, watch, watchEffect } from 'vue'
 import { propTypes } from '/@/utils/propTypes'
 import { initDictOptions } from '/@/utils/dict'
 import { omit } from 'lodash-es'
@@ -89,7 +89,6 @@ const emitData = ref<any[]>([])
 const dictOptions = ref<any[]>([])
 const attrs = useAttrs()
 const [state] = useRuleFormItem(props, 'value', 'change', emitData)
-const _getBindValue = Object.assign({}, unref(props), unref(attrs))
 
 // 是否正在加载回显数据
 const loadingEcho = ref<boolean>(false)
@@ -129,7 +128,6 @@ watch(
   }
 )
 
-// 使用useRuleFormItem定义的value，会有一个问题，如果不是操作设置的值而是代码设置的控件值而不能触发change事件
 async function initDictData() {
   let { dictCode, stringToNumber } = props
   // 根据字典Code, 初始化字典数组

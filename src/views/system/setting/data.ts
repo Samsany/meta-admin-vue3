@@ -1,7 +1,5 @@
 // tab的list
 import { FormSchema } from '/@/components/Form'
-import { getOSSConfigByCode } from '/@/api/system/config'
-import { removeHttp } from '/@/utils/common/compUtils'
 
 // 基础设置 form
 export const baseSettingSchemas: FormSchema[] = [
@@ -20,32 +18,7 @@ export const ossSettingSchemas: FormSchema[] = [
     component: 'DictSelectTag',
     label: '服务提供商',
     required: true,
-    componentProps: ({ schema, formModel }) => {
-      // console.log(formModel)
-      return {
-        dictCode: 'oss_provider',
-        placeholder: '请选择服务提供商',
-        onChange: async (_e, v) => {
-          if (v) {
-            // handleProviderChange()
-            const data = await getOSSConfigByCode({
-              configCode: v
-            })
-            console.log(schema, formModel)
-            data.customDomain = data.customDomain && removeHttp(data.customDomain)
-            formModel.accessKey = data.accessKey
-            formModel.appId = data.appId
-            formModel.bucketName = data.bucketName
-            formModel.customDomain = data.customDomain
-            formModel.endpoint = data.endpoint
-            formModel.pathStyleAccess = data.pathStyleAccess
-            formModel.provider = data.provider
-            formModel.region = data.region
-            formModel.secretKey = data.secretKey
-          }
-        }
-      }
-    },
+    slot: 'providerSlot',
     colProps: { span: 24 }
   },
   {
