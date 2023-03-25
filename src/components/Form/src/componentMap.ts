@@ -33,7 +33,8 @@ import { StrengthMeter } from '/@/components/StrengthMeter'
 import { IconPicker } from '/@/components/Icon'
 import { CountdownInput } from '/@/components/CountDown'
 
-import DictSelectTag from './meta/components/DictSelectTag.vue'
+import DictSelectTag from './meta/components/MDictSelectTag.vue'
+import MImageUpload from './meta/components/MImageUpload.vue'
 
 const componentMap = new Map<ComponentType, Component>()
 
@@ -74,8 +75,9 @@ componentMap.set('InputCountDown', CountdownInput)
 componentMap.set('Upload', BasicUpload)
 componentMap.set('Divider', Divider)
 
-// 自定义主键
+// 自定义组件
 componentMap.set('DictSelectTag', DictSelectTag)
+componentMap.set('MImageUpload', MImageUpload)
 
 export function add(compName: ComponentType, component: Component) {
   componentMap.set(compName, component)

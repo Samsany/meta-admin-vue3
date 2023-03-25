@@ -1,4 +1,5 @@
 import type { BarMap } from './types'
+
 export const BAR_MAP: BarMap = {
   vertical: {
     offset: 'offsetHeight',
@@ -36,6 +37,7 @@ export function renderThumbStyle({ move, size, bar }) {
 }
 
 function extend<T, K>(to: T, _from: K): T & K {
+  // @ts-ignore
   return Object.assign(to, _from)
 }
 

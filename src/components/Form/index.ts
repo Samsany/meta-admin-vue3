@@ -13,6 +13,7 @@ export { default as ApiTree } from './src/components/ApiTree.vue'
 export { default as ApiRadioGroup } from './src/components/ApiRadioGroup.vue'
 export { default as ApiCascader } from './src/components/ApiCascader.vue'
 export { default as ApiTransfer } from './src/components/ApiTransfer.vue'
-export { default as DictSelectTag } from './src/meta/components/DictSelectTag.vue'
+export { default as DictSelectTag } from './src/meta/components/MDictSelectTag.vue'
+export { default as MImageUpload } from './src/meta/components/MImageUpload.vue'
 
 export { BasicForm }

@@ -1,13 +1,15 @@
 import type { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import axios from 'axios'
-import type { RequestOptions, Result, UploadFileParams } from '/#/axios'
+import type { RequestOptions, Result, UploadFileCallBack, UploadFileParams } from '/#/axios'
 import type { CreateAxiosOptions } from './axiosTransform'
 import qs from 'qs'
 import { AxiosCanceler } from './axiosCancel'
 import { isFunction } from '/@/utils/is'
 import { cloneDeep } from 'lodash-es'
 import { ContentTypeEnum, RequestEnum } from '/@/enums/httpEnum'
+import { useMessage } from '/@/hooks/web/useMessage'
 
+const { createMessage } = useMessage()
 export * from './axiosTransform'
 
 /**
@@ -112,7 +114,7 @@ export class VAxios {
   /**
    * @description:  File Upload
    */
-  uploadFile<T = any>(config: AxiosRequestConfig, params: UploadFileParams) {
+  uploadFile<T = any>(config: AxiosRequestConfig, params: UploadFileParams, callback?: UploadFileCallBack) {
     const formData = new window.FormData()
     const customFilename = params.name || 'file'
 
@@ -136,16 +138,34 @@ export class VAxios {
       })
     }
 
-    return this.axiosInstance.request<T>({
-      ...config,
-      method: 'POST',
-      data: formData,
-      headers: {
-        'Content-type': ContentTypeEnum.FORM_DATA,
-        // @ts-ignore
-        ignoreCancelToken: true
-      }
-    })
+    return this.axiosInstance
+      .request<T>({
+        ...config,
+        method: 'POST',
+        data: formData,
+        headers: {
+          'Content-type': ContentTypeEnum.FORM_DATA,
+          // @ts-ignore
+          ignoreCancelToken: true
+        }
+      })
+      .then((res: any) => {
+        // 上传判断是否包含回调方法------
+        if (callback?.success && isFunction(callback?.success)) {
+          callback?.success(res?.data)
+          // 上传判断是否包含回调方法------
+        } else if (callback?.isReturnResponse) {
+          // 上传判断是否返回res信息------
+          return Promise.resolve(res?.data)
+          // 上传判断是否返回res信息------
+        } else {
+          if (res.data.success == true && res.data.code == 200) {
+            createMessage.success(res.data.message)
+          } else {
+            createMessage.error(res.data.message)
+          }
+        }
+      })
   }
 
   // support form-data
