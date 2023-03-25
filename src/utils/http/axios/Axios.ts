@@ -1,12 +1,12 @@
 import type { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import axios from 'axios'
-import type { RequestOptions, Result, UploadFileCallBack, UploadFileParams } from '/#/axios'
+import type { RequestOptions, Result, UploadFileParams } from '/#/axios'
 import type { CreateAxiosOptions } from './axiosTransform'
 import qs from 'qs'
 import { AxiosCanceler } from './axiosCancel'
 import { isFunction } from '/@/utils/is'
 import { cloneDeep } from 'lodash-es'
-import { ContentTypeEnum, RequestEnum } from '/@/enums/httpEnum'
+import { ContentTypeEnum, RequestEnum, ResultEnum } from '/@/enums/httpEnum'
 import { useMessage } from '/@/hooks/web/useMessage'
 
 const { createMessage } = useMessage()
@@ -114,7 +114,7 @@ export class VAxios {
   /**
    * @description:  File Upload
    */
-  uploadFile<T = any>(config: AxiosRequestConfig, params: UploadFileParams, callback?: UploadFileCallBack) {
+  uploadFile<T = any>(config: AxiosRequestConfig, params: UploadFileParams) {
     const formData = new window.FormData()
     const customFilename = params.name || 'file'
 
@@ -150,20 +150,26 @@ export class VAxios {
         }
       })
       .then((res: any) => {
-        // 上传判断是否包含回调方法------
-        if (callback?.success && isFunction(callback?.success)) {
-          callback?.success(res?.data)
+        //  这里 code，result，message为 后台统一的字段，需要在 types.ts内修改为项目自己的接口返回格式
+        const { code, data, message } = res.data
+
+        // 这里逻辑可以根据项目进行修改
+        const hasSuccess = res.data && Reflect.has(res.data, 'code') && code === ResultEnum.SUCCESS
+        if (hasSuccess) {
           // 上传判断是否包含回调方法------
-        } else if (callback?.isReturnResponse) {
-          // 上传判断是否返回res信息------
-          return Promise.resolve(res?.data)
-          // 上传判断是否返回res信息------
+          // if (callback?.success && isFunction(callback?.success)) {
+          //   callback?.success(res?.data)
+          //   // 上传判断是否返回------
+          // } else if (callback?.isReturnResponse) {
+          //   // 上传判断是否返回响应信息------
+          //   return Promise.resolve(data)
+          // } else {
+          //   createMessage.success(message)
+          // }
+          createMessage.success(message)
+          return Promise.resolve(data)
         } else {
-          if (res.data.success == true && res.data.code == 200) {
-            createMessage.success(res.data.message)
-          } else {
-            createMessage.error(res.data.message)
-          }
+          createMessage.error(message)
         }
       })
   }

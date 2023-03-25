@@ -157,7 +157,6 @@ function menuClick(record: any) {
     groupName: record.name,
     groupType: record.type
   })
-  // console.log(activeItem)
 }
 // const tabBarStyle = ref({
 //   width: 240,

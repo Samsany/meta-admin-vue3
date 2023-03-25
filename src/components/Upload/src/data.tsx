@@ -75,12 +75,13 @@ export function createTableColumns(): BasicColumn[] {
     }
   ]
 }
-export function createActionColumn(handleRemove: Function): BasicColumn {
+export function createActionColumn(handleRemove: Function, showDel = true): BasicColumn {
   return {
     width: 120,
     title: t('component.upload.operating'),
     dataIndex: 'action',
     fixed: false,
+    ifShow: showDel,
     customRender: ({ record }) => {
       const actions: ActionItem[] = [
         {

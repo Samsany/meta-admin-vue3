@@ -3,7 +3,6 @@
     <div class="pb-4 bg-white">
       <div class="flex justify-between space-x-2">
         <div class="flex justify-start space-x-2">
-          <a-button type="primary" @click="() => openMaterialModal(true)"> 弹窗显示 </a-button>
           <BasicUpload
             :maxSize="20"
             :maxNumber="50"
@@ -26,7 +25,12 @@
             @search="onSearch"
             allow-clear
           />
-          <a-checkbox v-model:checked="state.checkAll" :indeterminate="state.indeterminate" @change="onCheckAllChange">
+          <a-checkbox
+            v-model:checked="state.checkAll"
+            :indeterminate="state.indeterminate"
+            @change="onCheckAllChange"
+            :disabled="!multiple"
+          >
             全选
           </a-checkbox>
           <a-button
@@ -68,47 +72,33 @@
                     <Image :src="item.url" :preview="true" style="height: 150px; width: 150px; object-fit: cover" />
                   </div>
                 </template>
-                <!--                <template #actions>-->
-                <!--                  &lt;!&ndash;              <SettingOutlined key="setting" />&ndash;&gt;-->
-                <!--                  <EyeOutlined key="preview" @click="handlePreview(item.url)" />-->
-                <!--                  <DeleteOutlined key="preview" @click="handleDelete(item.id)" />-->
-                <!--                </template>-->
               </Card>
             </ListItem>
           </template>
         </List>
       </a-checkbox-group>
     </div>
-
-    <material-modal @register="registerMaterialModal" @change="handleMaterialChange" :multiple="false" />
   </div>
 </template>
-<script lang="ts" setup name="ImgCardList">
-import { onMounted, reactive, ref, unref, watch } from 'vue'
+
+<script lang="ts" setup>
+import BasicUpload from '/@/components/Upload/src/BasicUpload.vue'
 import { Card, Image, List, Tooltip } from 'ant-design-vue'
 import { propTypes } from '/@/utils/propTypes'
-// import { createImgPreview } from '/@/components/Preview'
+import { onMounted, reactive, ref, unref, watch } from 'vue'
 import { AttachmentModel } from '/@/api/tools/model/materialModel'
+import { CheckBoxData } from '../material.data'
 import { delAttachment, getAttachmentList, uploadAttachment } from '/@/api/tools/material'
 import { useMessage } from '/@/hooks/web/useMessage'
-import { CheckBoxData } from './imgCard.data'
-import BasicUpload from '/@/components/Upload/src/BasicUpload.vue'
-import MaterialModal from '/@/components/Meta/src/material/MaterialModal.vue'
-import { useModal } from '/@/components/Modal'
+
+const ListItem = List.Item
 
 const { createMessage, createConfirm } = useMessage()
-const ListItem = List.Item
-// 获取slider属性
-// const sliderProp = computed(() => useSlider(4))
-
-//暴露内部方法
-// const emit = defineEmits(['getMethod', 'reload', 'delete'])
-
-const [registerMaterialModal, { openModal: openMaterialModal }] = useModal()
-const handleMaterialChange = () => {}
+const emit = defineEmits(['selectChange'])
 
 // 组件接收参数
 const props = defineProps({
+  multiple: propTypes.bool,
   // 请求API的参数
   params: propTypes.object.def({
     groupId: undefined,
@@ -117,11 +107,11 @@ const props = defineProps({
     keyword: ''
   })
 })
+
 // 搜索条件
 const searchParams = reactive({
   ...props.params
 })
-
 // 分页相关
 const page = ref(1)
 const pageSize = ref(10)
@@ -146,16 +136,31 @@ const state: CheckBoxData = reactive({
   checkedList: [],
   plainOptions: []
 })
-
 async function handleUploadChange() {
   await fetch()
 }
 
-// 监听checkBox
 function handleCheckboxGroupChange(val) {
-  state.indeterminate = !!val.length && val.length < state.plainOptions.length
-  state.checkAll = val.length === state.plainOptions.length
-  state.multiple = !val.length && val.length == 0
+  const multiple = props.multiple
+  if (multiple) {
+    state.indeterminate = !!val.length && val.length < state.plainOptions.length
+    state.checkAll = val.length === state.plainOptions.length
+    state.multiple = !val.length && val.length == 0
+    state.selection = data.value.filter(it => val.includes(it.id))
+  } else {
+    if (val && val.length > 1) {
+      val = val.slice(1)
+    }
+    Object.assign(state, {
+      checkedList: val,
+      indeterminate: true,
+      multiple: !val.length && val.length == 0,
+      selection: data.value.filter(it => val.includes(it.id))
+    })
+  }
+
+  // console.log('变化的数据', state)
+  emit('selectChange', unref(state.selection))
 }
 
 // 监听参数变化
@@ -174,11 +179,8 @@ watch(
   }
 )
 
-// 自动请求并暴露内部方法
 onMounted(() => {
   fetch()
-  // emit('getMethod', fetch)
-  // emit('reload', reset)
 })
 
 const onCheckAllChange = (e: any) => {
@@ -222,9 +224,6 @@ function pageSizeChange(_current, size) {
   pageSize.value = size
   fetch()
 }
-// async function handlePreview(url) {
-//   createImgPreview({ imageList: [url], maskClosable: true, defaultWidth: 800 })
-// }
 async function handleDelete() {
   let selection = state.checkedList
   createConfirm({

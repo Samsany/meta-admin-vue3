@@ -1,8 +1,8 @@
 <template>
   <div>
     <Space>
-      <a-button type="primary" @click="openUploadModal" preIcon="carbon:cloud-upload">
-        {{ t('component.upload.upload') }}
+      <a-button type="primary" @click="openUploadModal" :preIcon="btnPreIcon">
+        {{ btnText }}
       </a-button>
       <Tooltip placement="bottom" v-if="showPreview">
         <template #title>
@@ -35,8 +35,8 @@
     />
   </div>
 </template>
-<script lang="ts">
-import { computed, defineComponent, ref, unref, watch } from 'vue'
+<script lang="ts" setup name="BasicUpload">
+import { computed, ref, unref, watch } from 'vue'
 import { Icon } from '/@/components/Icon'
 import { Space, Tooltip } from 'ant-design-vue'
 import { useModal } from '/@/components/Modal'
@@ -46,78 +46,64 @@ import { useI18n } from '/@/hooks/web/useI18n'
 import { isArray } from '/@/utils/is'
 import UploadModal from './UploadModal.vue'
 import UploadPreviewModal from './UploadPreviewModal.vue'
+import { useAttrs } from '/@/hooks/core/useAttrs'
 
-export default defineComponent({
-  name: 'BasicUpload',
-  components: { UploadModal, Space, UploadPreviewModal, Icon, Tooltip },
-  props: uploadContainerProps,
-  emits: ['change', 'delete', 'preview-delete', 'update:value'],
+const props = defineProps({
+  ...uploadContainerProps
+})
+const emit = defineEmits(['change', 'delete', 'preview-delete', 'update:value'])
+const attrs = useAttrs()
+const { t } = useI18n()
+// 上传modal
+const [registerUploadModal, { openModal: openUploadModal }] = useModal()
 
-  setup(props, { emit, attrs }) {
-    const { t } = useI18n()
-    // 上传modal
-    const [registerUploadModal, { openModal: openUploadModal }] = useModal()
+//   预览modal
+const [registerPreviewModal, { openModal: openPreviewModal }] = useModal()
 
-    //   预览modal
-    const [registerPreviewModal, { openModal: openPreviewModal }] = useModal()
+const fileList = ref<string[]>([])
 
-    const fileList = ref<string[]>([])
-
-    const showPreview = computed(() => {
-      const { emptyHidePreview } = props
-      if (!emptyHidePreview) return true
-      return emptyHidePreview ? fileList.value.length > 0 : true
-    })
-
-    const bindValue = computed(() => {
-      const value = { ...attrs, ...props }
-      return omit(value, 'onChange')
-    })
-
-    watch(
-      () => props.value,
-      (value = []) => {
-        fileList.value = isArray(value) ? value : []
-      },
-      { immediate: true }
-    )
-
-    // 上传modal保存操作
-    function handleChange(urls: string[]) {
-      fileList.value = [...unref(fileList), ...(urls || [])]
-      emit('update:value', fileList.value)
-      emit('change', fileList.value)
-    }
-
-    // 预览modal保存操作
-    function handlePreviewChange(urls: string[]) {
-      fileList.value = [...(urls || [])]
-      emit('update:value', fileList.value)
-      emit('change', fileList.value)
-    }
-
-    function handleDelete(record: Recordable) {
-      emit('delete', record)
-    }
-
-    function handlePreviewDelete(url: string) {
-      emit('preview-delete', url)
-    }
-
-    return {
-      registerUploadModal,
-      openUploadModal,
-      handleChange,
-      handlePreviewChange,
-      registerPreviewModal,
-      openPreviewModal,
-      fileList,
-      showPreview,
-      bindValue,
-      handleDelete,
-      handlePreviewDelete,
-      t
-    }
+const showPreview = computed(() => {
+  const { hidePreview, emptyHidePreview } = props
+  if (hidePreview) {
+    return false
+  } else {
+    if (!emptyHidePreview) return true
+    return emptyHidePreview ? fileList.value.length > 0 : true
   }
 })
+
+const bindValue = computed(() => {
+  const value = { ...attrs, ...props }
+  return omit(value, 'onChange')
+})
+
+watch(
+  () => props.value,
+  (value = []) => {
+    fileList.value = isArray(value) ? value : []
+  },
+  { immediate: true }
+)
+
+// 上传modal保存操作
+function handleChange(urls: string[]) {
+  fileList.value = [...unref(fileList), ...(urls || [])]
+  emit('update:value', fileList.value)
+  emit('change', fileList.value)
+}
+
+// 预览modal保存操作
+function handlePreviewChange(urls: string[]) {
+  fileList.value = [...(urls || [])]
+  emit('update:value', fileList.value)
+  emit('change', fileList.value)
+}
+
+function handleDelete(record: Recordable) {
+  emit('delete', record)
+}
+
+function handlePreviewDelete(url: string) {
+  emit('preview-delete', url)
+}
 </script>

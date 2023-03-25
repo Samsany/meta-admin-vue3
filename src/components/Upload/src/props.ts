@@ -1,7 +1,20 @@
 import type { PropType } from 'vue'
 import { FileBasicColumn } from './typing'
+import { t } from '/@/hooks/web/useI18n'
 
 export const basicProps = {
+  okText: {
+    type: String as PropType<string>,
+    default: t('component.upload.save')
+  },
+  btnText: {
+    type: String as PropType<string>,
+    default: t('component.upload.upload')
+  },
+  btnPreIcon: {
+    type: String as PropType<string>,
+    default: 'carbon:cloud-upload'
+  },
   helpText: {
     type: String as PropType<string>,
     default: ''
@@ -50,6 +63,10 @@ export const uploadContainerProps = {
     default: () => []
   },
   ...basicProps,
+  hidePreview: {
+    type: Boolean as PropType<boolean>,
+    default: false
+  },
   showPreviewNumber: {
     type: Boolean as PropType<boolean>,
     default: true

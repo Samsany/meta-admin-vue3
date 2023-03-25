@@ -9,7 +9,10 @@ import {
 import { ErrorMessageMode, UploadFileParams } from '/#/axios'
 import { defHttp } from '/@/utils/http/axios'
 import { UploadApiResult } from '/@/api/system/model/uploadModel'
+import { useGlobSetting } from '/@/hooks/setting'
 
+const globSetting = useGlobSetting()
+const baseUploadUrl = globSetting.uploadUrl
 enum Api {
   GetAttachmentGroupList = '/meta-component/attachment-group/list',
   GetOrAddOrUpdateAttachmentGroup = '/meta-component/attachment-group',
@@ -76,7 +79,7 @@ export const getAttachmentInfo = (id: number) => {
 export function uploadAttachment(params: UploadFileParams, onUploadProgress: (progressEvent: ProgressEvent) => void) {
   return defHttp.uploadFile<UploadApiResult>(
     {
-      url: Api.UploadAttachment,
+      url: baseUploadUrl + Api.UploadAttachment,
       onUploadProgress
     },
     params

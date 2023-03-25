@@ -1,5 +1,5 @@
 export interface UploadApiResult {
-  message: string
-  code: number
+  bucketName: string
+  fileName: number
   url: string
 }
