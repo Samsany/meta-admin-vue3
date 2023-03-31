@@ -53,7 +53,7 @@
     <div class="bg-white">
       <a-checkbox-group v-model:value="state.checkedList" style="width: 100%" @change="handleCheckboxGroupChange">
         <List
-          :grid="{ gutter: [48, 24], xs: 1, sm: 2, md: 4, lg: 4, xl: 6, xxxl: 8 }"
+          :grid="{ gutter: [48, 0], xs: 1, sm: 2, md: 4, lg: 4, xl: 6, xxxl: 8 }"
           :data-source="data"
           :pagination="paginationProp"
         >
@@ -101,9 +101,10 @@ const props = defineProps({
   multiple: propTypes.bool,
   // 请求API的参数
   params: propTypes.object.def({
-    groupId: undefined,
+    groupId: 0,
     groupName: '',
-    groupType: undefined,
+    bizPath: '',
+    groupType: 1,
     keyword: ''
   })
 })

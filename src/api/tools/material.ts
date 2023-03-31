@@ -11,8 +11,7 @@ import { defHttp } from '/@/utils/http/axios'
 import { UploadApiResult } from '/@/api/system/model/uploadModel'
 import { useGlobSetting } from '/@/hooks/setting'
 
-const globSetting = useGlobSetting()
-const baseUploadUrl = globSetting.uploadUrl
+const { uploadUrl = '' } = useGlobSetting()
 enum Api {
   GetAttachmentGroupList = '/meta-component/attachment-group/list',
   GetOrAddOrUpdateAttachmentGroup = '/meta-component/attachment-group',
@@ -79,7 +78,7 @@ export const getAttachmentInfo = (id: number) => {
 export function uploadAttachment(params: UploadFileParams, onUploadProgress: (progressEvent: ProgressEvent) => void) {
   return defHttp.uploadFile<UploadApiResult>(
     {
-      url: baseUploadUrl + Api.UploadAttachment,
+      url: uploadUrl + Api.UploadAttachment,
       onUploadProgress
     },
     params

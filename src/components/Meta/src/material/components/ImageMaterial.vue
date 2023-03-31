@@ -34,7 +34,8 @@ const props = defineProps({
 })
 const materialGroup = reactive({
   groupId: 0,
-  groupName: '全部',
+  groupName: '',
+  bizPath: '',
   groupType: props.type
 })
 
@@ -61,12 +62,12 @@ const { prefixCls } = useDesign('material-setting')
     display: flex;
 
     .group {
-      padding: 24px 0 0 24px;
+      padding: 12px 0 0 24px;
       width: 240px;
       border-right: 1px solid #e0e0e0e0;
 
       .group-list {
-        padding-top: 10px;
+        padding-top: 12px;
         border: 0;
 
         .group-item {
@@ -81,7 +82,7 @@ const { prefixCls } = useDesign('material-setting')
       display: flex;
       flex-direction: column;
       // margin-left: 24px;
-      padding: 24px 0;
+      padding: 12px 0;
       flex: 1;
       width: 100%;
     }

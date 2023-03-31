@@ -94,7 +94,8 @@ watch(
 const activeKey = ref(0)
 const activeItem = reactive({
   groupId: 0,
-  groupName: '全部',
+  groupName: '',
+  bizPath: '',
   groupType: props.type
 })
 

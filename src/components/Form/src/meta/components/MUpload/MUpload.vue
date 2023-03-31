@@ -3,7 +3,8 @@
     <a-upload
       :headers="headers"
       :multiple="multiple"
-      :action="uploadUrl"
+      :action="uploadApi"
+      :data="{ bizPath }"
       :fileList="fileList"
       :disabled="disabled"
       v-bind="bindProps"
@@ -29,7 +30,6 @@
 import { computed, createApp, nextTick, reactive, ref, watch } from 'vue'
 import { Icon } from '/@/components/Icon'
 import { getToken } from '/@/utils/auth'
-import { uploadUrl } from '/@/api/common/api'
 import { propTypes } from '/@/utils/propTypes'
 import { useMessage } from '/@/hooks/web/useMessage'
 import { createImgPreview } from '/@/components/Preview/index'
@@ -38,6 +38,7 @@ import { useDesign } from '/@/hooks/web/useDesign'
 import { UploadTypeEnum } from './upload.data'
 import { getFileAccessHttpUrl } from '/@/utils/common/compUtils'
 import UploadItemActions from './components/UploadItemActions.vue'
+import { uploadApi } from '/@/api/system/upload'
 
 const { createMessage, createConfirm } = useMessage()
 const { prefixCls } = useDesign('j-upload')
@@ -70,7 +71,7 @@ const props = defineProps({
 })
 
 const headers = reactive({
-  'X-Access-Token': getToken()
+  Authorization: getToken()
 })
 const fileList = ref<any[]>([])
 const uploadGoOn = ref<boolean>(true)
@@ -87,11 +88,11 @@ const bindProps = computed(() => {
   bind.listType = isImageMode.value ? 'picture-card' : 'text'
   bind.class = [bind.class, { 'upload-disabled': props.disabled }]
   bind.data = { biz: props.bizPath, ...bind.data }
-  //update-begin-author:taoyan date:20220407 for: 自定义beforeUpload return false，并不能中断上传过程
+  // 自定义beforeUpload return false，并不能中断上传过程
   if (!bind.beforeUpload) {
     bind.beforeUpload = onBeforeUpload
   }
-  //update-end-author:taoyan date:20220407 for: 自定义beforeUpload return false，并不能中断上传过程
+  // 自定义beforeUpload return false，并不能中断上传过程
   // 如果当前是图片上传模式，就只能上传图片
   if (isImageMode.value && !bind.accept) {
     bind.accept = 'image/*'

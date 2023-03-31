@@ -16,6 +16,7 @@ const emit = defineEmits(['success', 'register'])
 const { createMessage } = useMessage()
 const isUpdate = ref(true)
 const rowId = ref('')
+const roleList = ref<any[]>([])
 
 const [registerForm, { setFieldsValue, updateSchema, resetFields, validate }] = useForm({
   labelWidth: 100,
@@ -31,11 +32,11 @@ const [registerModal, { setModalProps, closeModal }] = useModalInner(async data 
   await resetFields()
   setModalProps({ confirmLoading: false })
   isUpdate.value = !!data?.isUpdate
-  isUpdate.value = !!data?.isUpdate
 
   if (unref(isUpdate)) {
     rowId.value = data.record.id
     const { roles } = data.record
+    roleList.value = roles || []
     const roleIds = roles && roles.map(it => it.id)
     // console.log(data.record)
     await setFieldsValue({

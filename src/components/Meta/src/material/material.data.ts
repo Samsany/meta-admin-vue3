@@ -44,6 +44,13 @@ export const groupFromSchema: FormSchema[] = [
     component: 'Input'
   },
   {
+    field: 'bizPath',
+    label: '路径',
+    required: true,
+    component: 'Input',
+    helpMessage: '用于控制文件上传的业务路径'
+  },
+  {
     field: 'icon',
     label: '图标',
     component: 'IconPicker'

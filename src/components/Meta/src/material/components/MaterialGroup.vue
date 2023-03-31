@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div style="display: flex; justify-content: center">
+    <div style="display: flex; justify-content: center" class="mb-2">
       <a-button type="primary" preIcon="ant-design:plus-outlined" @click="handleAddGroup"> 新增分组</a-button>
     </div>
     <ul class="group-list ant-menu ant-menu-inline ant-menu-root ant-menu-light">
@@ -118,23 +118,6 @@ function menuClick(record: any) {
 </script>
 
 <style lang="less" scoped>
-.group {
-  padding: 24px 0 0 24px;
-  width: 240px;
-  border-right: 1px solid #e0e0e0e0;
-
-  .group-list {
-    padding-top: 10px;
-    border: 0;
-
-    .group-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-  }
-}
-
 .ant-tabs-tab-active {
   background-color: @item-active-bg;
 }

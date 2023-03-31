@@ -157,6 +157,7 @@ export const formSchema: FormSchema[] = [
           { label: '外链', value: 3, disabled: isRooTDir(formModel.parentId) && isDir(formModel.type) }
         ],
         onChange: (e, v) => {
+          console.log(e, v)
           if (v) {
             switch (e) {
               case 0:

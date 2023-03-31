@@ -94,6 +94,31 @@ export const searchFormSchema: FormSchema[] = [
 
 export const accountFormSchema: FormSchema[] = [
   {
+    field: 'id',
+    label: 'ID',
+    component: 'Input',
+    show: false
+  },
+  {
+    field: 'avatar',
+    label: '头像',
+    component: 'MImageUpload',
+    componentProps: {
+      maxCount: 1,
+      group: 8,
+      bizPath: 'avatar'
+    }
+  },
+  {
+    field: 'account',
+    label: '账户',
+    component: 'Input',
+    helpMessage: ['用户登录账户不可重复'],
+    dynamicDisabled: ({ values }) => {
+      return !!values.id
+    }
+  },
+  {
     field: 'account',
     label: '账户',
     component: 'Input',
@@ -121,7 +146,9 @@ export const accountFormSchema: FormSchema[] = [
     label: '密码',
     component: 'InputPassword',
     required: true,
-    ifShow: false
+    ifShow: ({ values }) => {
+      return !values.id
+    }
   },
   {
     label: '角色',

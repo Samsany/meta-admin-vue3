@@ -1,5 +1,6 @@
 // tab的list
 import { FormSchema } from '/@/components/Form'
+import { AttachmentModel } from '/@/api/tools/model/materialModel'
 
 export declare type TabsSettingType = 'image' | 'video' | 'others'
 
@@ -37,6 +38,13 @@ export const groupFromSchema: FormSchema[] = [
     component: 'Input'
   },
   {
+    field: 'bizPath',
+    label: '路径',
+    required: true,
+    component: 'Input',
+    helpMessage: '用于控制文件上传的业务路径'
+  },
+  {
     field: 'icon',
     label: '图标',
     component: 'IconPicker'
@@ -59,3 +67,12 @@ export const groupFromSchema: FormSchema[] = [
     component: 'InputTextArea'
   }
 ]
+
+export interface CheckBoxData {
+  multiple: boolean
+  indeterminate: boolean
+  checkAll: boolean
+  selection: AttachmentModel[]
+  checkedList: any[]
+  plainOptions: any[]
+}

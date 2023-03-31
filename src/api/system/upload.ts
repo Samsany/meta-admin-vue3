@@ -4,6 +4,9 @@ import { UploadFileParams } from '/#/axios'
 import { useGlobSetting } from '/@/hooks/setting'
 
 const { uploadUrl = '' } = useGlobSetting()
+enum Api {
+  UploadAttachment = '/meta-component/attachment/path/upload'
+}
 
 /**
  * @description: Upload interface
@@ -11,7 +14,7 @@ const { uploadUrl = '' } = useGlobSetting()
 export function uploadApi(params: UploadFileParams, onUploadProgress: (progressEvent: ProgressEvent) => void) {
   return defHttp.uploadFile<UploadApiResult>(
     {
-      url: uploadUrl,
+      url: uploadUrl + Api.UploadAttachment,
       onUploadProgress
     },
     params

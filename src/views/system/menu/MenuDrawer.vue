@@ -38,6 +38,7 @@ const [registerDrawer, { setDrawerProps, closeDrawer }] = useDrawerInner(async d
   isAddSub.value = !!data?.isAddSub
 
   if (unref(isUpdate) || unref(isAddSub)) {
+    console.log(data.record)
     await setFieldsValue({
       ...data.record
     })
@@ -55,14 +56,15 @@ const getTitle = computed(() => (!unref(isUpdate) ? '新增菜单' : '编辑菜�
 async function handleSubmit() {
   try {
     const values = await validate()
+
     // 判断路由地址是否填写正确
     if (values.path) {
       if (isRooTDir(values.parentId) && !values.path.startsWith('/')) {
-        createMessage.error('Layout组件对应的 路由地址 前面需要加 /')
+        createMessage.error('【目录】对应的路由地址前需要加 /')
         return
       }
       if (isMenu(values.type) && values.path.startsWith('/')) {
-        createMessage.error('除了Layout组件对应的 路由地址 前面需要加 / ,其余子路由都不要以 / 开头')
+        createMessage.error('除了【目录】对应的路由地址前需要加 / ,其余子路由都不要以 / 开头')
         return
       }
     }

@@ -1,11 +1,10 @@
 <template>
   <div class="clearfix">
     <a-upload
+      accept="image/*"
       :listType="listType"
       :multiple="multiple"
-      :action="uploadApi"
-      :headers="headers"
-      :data="{ biz: bizPath }"
+      :customRequest="customUpload"
       v-model:fileList="uploadFileList"
       :beforeUpload="beforeUpload"
       :disabled="disabled"
@@ -42,9 +41,8 @@ import { useRuleFormItem } from '/@/hooks/component/useFormItem'
 import { useAttrs } from '/@/hooks/core/useAttrs'
 import { useMessage } from '/@/hooks/web/useMessage'
 import { getFileAccessHttpUrl, getRandom } from '/@/utils/common/compUtils'
-import { getToken } from '/@/utils/auth'
 import { propTypes } from '/@/utils/propTypes'
-import { uploadApi } from '/@/api/system/upload'
+import { uploadAttachment } from '/@/api/tools/material'
 
 const { createMessage } = useMessage()
 
@@ -62,6 +60,12 @@ const props = defineProps({
     type: String,
     required: false,
     default: '上传'
+  },
+  //这个属性用于分配文件所属分组
+  group: {
+    type: Number,
+    required: false,
+    default: 0
   },
   //这个属性用于控制文件上传的业务路径
   bizPath: {
@@ -94,10 +98,7 @@ const getFileName = path => {
   }
   return path.substring(path.lastIndexOf('/') + 1)
 }
-//token
-const headers = ref<object>({
-  'X-Access-Token': getToken()
-})
+
 //上传状态
 const loading = ref<boolean>(false)
 //是否是初始化加载
@@ -142,7 +143,7 @@ function initFileList(paths) {
     uploadFileList.value = []
     return
   }
-  let files = []
+  let files: any[] = []
   let arr = paths.split(',')
   arr.forEach(value => {
     let url = getFileAccessHttpUrl(value)
@@ -170,6 +171,32 @@ function beforeUpload(file) {
     return false
   }
 }
+
+function customUpload(e) {
+  uploadAttachment(
+    {
+      file: e.file,
+      data: {
+        groupId: props.group,
+        bizPath: props.bizPath
+      }
+    },
+    ev => {
+      const percent = (ev.loaded / ev.total) * 100
+      // 计算出上传进度，调用组件进度条方法
+      e.onProgress({ percent })
+    }
+  )
+    .then(res => {
+      // console.log(res)
+      e.onSuccess(res, e)
+    })
+    .catch(err => {
+      // 调用实例的失败方法通知组件该文件上传失败
+      e.onError(err)
+    })
+}
+
 /**
  * 文件上传结果回调
  */
@@ -179,15 +206,14 @@ function handleChange({ file, fileList, _event }) {
   if (file.status === 'error') {
     createMessage.error(`${file.name} 上传失败.`)
   }
-  let fileUrls = []
-  //上传完成
+  let fileUrls: any[] = []
+  // 上传完成
   if (file.status != 'uploading') {
     fileList.forEach(file => {
       if (file.status === 'done') {
-        // 原生表单内使用图片组件,关闭弹窗图片组件值不会被清空------------
+        // 原生表单内使用图片组件,关闭弹窗图片组件值不会被清空
         initTag.value = true
-        // 原生表单内使用图片组件,关闭弹窗图片组件值不会被清空------------
-        fileUrls.push(file.response.message)
+        fileUrls.push(file.response.url)
       }
     })
     if (file.status === 'removed') {
@@ -196,6 +222,7 @@ function handleChange({ file, fileList, _event }) {
   }
   // emitData.value = fileUrls.join(',');
   state.value = fileUrls.join(',')
+  console.log('上传的文件', fileUrls, fileList, file)
   emit('update:value', fileUrls.join(','))
 }
 
@@ -215,7 +242,7 @@ function handlePreview(file) {
   previewVisible.value = true
 }
 
-// function getAvatarView() {
+// function _getAvatarView() {
 //   if (uploadFileList.length > 0) {
 //     let url = uploadFileList[0].url
 //     return getFileAccessHttpUrl(url, null)

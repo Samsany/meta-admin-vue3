@@ -164,7 +164,7 @@ async function getCode() {
 
 async function handleLogin() {
   const data = await validForm()
-  console.log('=====', data)
+  // console.log('=====', data)
   if (!data) return
   try {
     loading.value = true
@@ -189,6 +189,7 @@ async function handleLogin() {
       content: (error as unknown as Error).message || t('sys.api.networkExceptionMsg'),
       getContainer: () => document.body.querySelector(`.${prefixCls}`) || document.body
     })
+    await getCode()
   } finally {
     loading.value = false
   }
